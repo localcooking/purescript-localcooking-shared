@@ -1,0 +1,23 @@
+{
+  "name": "purescript-localcooking-shared",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-prelude": "^3.1.1",
+    "purescript-console": "^3.0.0",
+    "purescript-arraybuffer-types": "^2.0.0",
+    "purescript-generics": "^4.0.0",
+    "purescript-argonaut": "^3.1.0",
+    "purescript-base64": "purescript-base64-2#^1.0.1",
+    "purescript-scrypt": "^0.0.1",
+    "purescript-unorm": "^0.0.0",
+    "purescript-encoding": "^0.0.4"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^3.0.0"
+  }
+}

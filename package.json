@@ -1,0 +1,24 @@
+{
+  "name": "purescript-localcooking-shared",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.localcooking.com:localcooking/purescript-localcooking-shared.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "scrypt-js": "^2.0.3",
+    "text-encoding": "^0.6.4",
+    "tweetnacl-util": "^0.15.0",
+    "unorm": "^1.4.1"
+  }
+}

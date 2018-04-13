@@ -16,7 +16,8 @@
     "purescript-scrypt": "^0.0.1",
     "purescript-unorm": "^0.0.0",
     "purescript-encoding": "^0.0.4",
-    "purescript-quickcheck": "^4.6.2"
+    "purescript-quickcheck": "^4.6.2",
+    "purescript-react": "^5.1.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0"

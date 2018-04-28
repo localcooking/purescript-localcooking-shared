@@ -1,14 +1,19 @@
-module LocalCooking.Common.AuthToken where
+module LocalCooking.Common.AccessToken.Auth where
+
+import LocalCooking.Common.AccessToken (AccessToken)
 
 import Prelude
 import Data.Generic (class Generic, gEq, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson)
+import Data.Newtype (class Newtype)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
 
-newtype AuthToken = AuthToken String
+newtype AuthToken = AuthToken AccessToken
 
 derive instance genericAuthToken :: Generic AuthToken
+
+derive instance newtypeAuthToken :: Newtype AuthToken _
 
 instance arbitraryAuthToken :: Arbitrary AuthToken where
   arbitrary = AuthToken <$> arbitrary

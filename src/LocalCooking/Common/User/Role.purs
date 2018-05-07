@@ -1,7 +1,7 @@
 module LocalCooking.Common.User.Role where
 
 import Prelude
-import Data.Generic (class Generic, gEq, gShow)
+import Data.Generic (class Generic, gEq)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail)
 
 
@@ -19,7 +19,13 @@ instance eqUserRole :: Eq UserRole where
   eq = gEq
 
 instance showUserRole :: Show UserRole where
-  show = gShow
+  show x = case x of
+    Customer -> "Customer"
+    Chef     -> "Chef"
+    Farmer   -> "Farmer"
+    Editor   -> "Editor"
+    Manager  -> "Manager"
+    Admin    -> "Admin"
 
 instance encodeJsonUserRole :: EncodeJson UserRole where
   encodeJson x = encodeJson $ case x of

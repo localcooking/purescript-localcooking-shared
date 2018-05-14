@@ -1,7 +1,7 @@
 module LocalCooking.Common.User.Role where
 
 import Prelude
-import Data.Generic (class Generic, gEq)
+import Data.Generic (class Generic, gEq, gCompare)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail)
 
 
@@ -17,6 +17,9 @@ derive instance genericUserRole :: Generic UserRole
 
 instance eqUserRole :: Eq UserRole where
   eq = gEq
+
+instance ordUserRole :: Ord UserRole where
+  compare = gCompare
 
 instance showUserRole :: Show UserRole where
   show x = case x of

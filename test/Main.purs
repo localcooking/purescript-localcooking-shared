@@ -1,7 +1,7 @@
 module Test.Main where
 
 import LocalCooking.Common.Password (HashedPassword)
-import LocalCooking.Common.AuthToken (AuthToken)
+import LocalCooking.Common.AccessToken (AccessToken)
 
 import Prelude
 import Data.Either (Either (..))
@@ -18,8 +18,8 @@ main = do
   log "    HashedPassword:"
   quickCheck (\(x :: HashedPassword) -> jsonIso x)
   log ""
-  log "    AuthToken:"
-  quickCheck (\(x :: AuthToken) -> jsonIso x)
+  log "    AccessToken:"
+  quickCheck (\(x :: AccessToken) -> jsonIso x)
 
 
 

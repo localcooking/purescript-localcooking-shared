@@ -6,12 +6,14 @@ import Prelude
 import Data.Generic (class Generic)
 import Data.Argonaut (class EncodeJson, class DecodeJson)
 import Data.Newtype (class Newtype)
+import Test.QuickCheck (class Arbitrary)
 
 
 newtype ChefTag = ChefTag Tag
 
 derive instance genericChefTag :: Generic ChefTag
 derive instance newtypeChefTag :: Newtype ChefTag _
+derive newtype instance arbitraryChefTag :: Arbitrary ChefTag
 derive newtype instance eqChefTag :: Eq ChefTag
 derive newtype instance ordChefTag :: Ord ChefTag
 derive newtype instance showChefTag :: Show ChefTag

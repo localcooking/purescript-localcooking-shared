@@ -1,8 +1,11 @@
 module LocalCooking.Common.Rating where
 
 import Prelude
+import Data.NonEmpty (NonEmpty (..))
 import Data.Generic (class Generic, gEq, gCompare)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail)
+import Test.QuickCheck (class Arbitrary)
+import Test.QuickCheck.Gen (oneOf)
 
 
 data Rating
@@ -19,6 +22,22 @@ data Rating
   | FiveStar
 
 derive instance genericRating :: Generic Rating
+
+instance arbitraryRating :: Arbitrary Rating where
+  arbitrary = oneOf $ NonEmpty
+    ( pure ZeroStar
+    )
+    [ pure HalfStar
+    , pure OneStar
+    , pure OneHalfStar
+    , pure TwoStar
+    , pure TwoHalfStar
+    , pure ThreeStar
+    , pure ThreeHalfStar
+    , pure FourStar
+    , pure FourHalfStar
+    , pure FiveStar
+    ]
 
 instance eqRating :: Eq Rating where
   eq = gEq

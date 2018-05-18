@@ -1,8 +1,11 @@
 module LocalCooking.Common.User.Role where
 
 import Prelude
+import Data.NonEmpty (NonEmpty (..))
 import Data.Generic (class Generic, gEq, gCompare)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail)
+import Test.QuickCheck (class Arbitrary)
+import Test.QuickCheck.Gen (oneOf)
 
 
 data UserRole
@@ -14,6 +17,17 @@ data UserRole
   | Admin
 
 derive instance genericUserRole :: Generic UserRole
+
+instance arbitraryUserRole :: Arbitrary UserRole where
+  arbitrary = oneOf $ NonEmpty
+    ( pure Customer
+    )
+    [ pure Chef
+    , pure Farmer
+    , pure Editor
+    , pure Manager
+    , pure Admin
+    ]
 
 instance eqUserRole :: Eq UserRole where
   eq = gEq

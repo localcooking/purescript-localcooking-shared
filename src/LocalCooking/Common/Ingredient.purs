@@ -5,6 +5,7 @@ import LocalCooking.Common.Diet (Diet)
 import Prelude
 import Data.Generic (class Generic, gShow, gEq)
 import Data.Argonaut (class EncodeJson, class DecodeJson, (~>), (:=), decodeJson, (.?), jsonEmptyObject)
+import Test.QuickCheck (class Arbitrary, arbitrary)
 
 
 newtype Ingredient = Ingredient
@@ -13,6 +14,12 @@ newtype Ingredient = Ingredient
   }
 
 derive instance genericIngredient :: Generic Ingredient
+
+instance arbitraryIngredient :: Arbitrary Ingredient where
+  arbitrary = do
+    name <- arbitrary
+    voids <- arbitrary
+    pure (Ingredient {name,voids})
 
 instance eqIngredient :: Eq Ingredient where
   eq = gEq

@@ -1,4 +1,4 @@
-module LocalCooking.Common.Password where
+module LocalCooking.Common.User.Password where
 
 import Prelude
 

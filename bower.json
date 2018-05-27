@@ -19,6 +19,8 @@
     "purescript-quickcheck": "^4.6.2",
     "purescript-react": "^5.1.0",
     "purescript-js-date": "^5.2.0",
+    "purescript-uri": "git@git.localcooking.com:private-tooling/purescript-uri.git",
+    "purescript-uri-extra": "^0.0.3",
     "purescript-string-parsers": "^3.1.0"
   },
   "devDependencies": {

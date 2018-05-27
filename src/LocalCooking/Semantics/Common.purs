@@ -31,3 +31,9 @@ instance encodeJsonSocialLoginForm :: EncodeJson SocialLoginForm where
   encodeJson (SocialLoginForm {fb})
     =  "fb" := fb
     ~> jsonEmptyObject
+
+instance decodeJsonSocialLoginForm :: DecodeJson SocialLoginForm where
+  decodeJson json = do
+    o <- decodeJson json
+    fb <- o .? "fb"
+    pure (SocialLoginForm {fb})

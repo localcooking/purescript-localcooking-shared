@@ -2,7 +2,9 @@ module LocalCooking.Semantics.Common where
 
 import LocalCooking.Database.Schema (StoredUserId)
 import LocalCooking.Common.User.Role (UserRole)
+import LocalCooking.Common.User.Password (HashedPassword)
 import Facebook.Types (FacebookUserId)
+import Google.ReCaptcha (ReCaptchaResponse)
 
 import Prelude
 import Data.DateTime (DateTime)
@@ -49,7 +51,7 @@ instance decodeJsonSocialLoginForm :: DecodeJson SocialLoginForm where
 
 newtype User = User
   { id             :: StoredUserId
-  , created        :: DateTime -- FIXME SHIT, isomorphic to UTCTime?
+  , created        :: DateTime
   , email          :: EmailAddress
   , social         :: SocialLoginForm
   , emailConfirmed :: Boolean
@@ -96,3 +98,45 @@ instance decodeJsonUser :: DecodeJson User where
     emailConfirmed <- o .? "emailConfirmed"
     roles <- o .? "roles"
     pure (User {id,created,email,social,emailConfirmed,roles})
+
+
+
+newtype Register = Register
+  { email     :: EmailAddress
+  , password  :: HashedPassword
+  , social    :: SocialLoginForm
+  , reCaptcha :: ReCaptchaResponse
+  }
+
+derive instance genericRegister :: Generic Register
+
+instance arbitraryRegister :: Arbitrary Register where
+  arbitrary = do
+    email <- arbitrary
+    password <- arbitrary
+    social <- arbitrary
+    reCaptcha <- arbitrary
+    pure (Register {email,password,social,reCaptcha})
+
+instance eqRegister :: Eq Register where
+  eq = gEq
+
+instance showRegister :: Show Register where
+  show = gShow
+
+instance encodeJsonRegister :: EncodeJson Register where
+  encodeJson (Register {email,password,social,reCaptcha})
+    =  "email" := email
+    ~> "password" := password
+    ~> "social" := social
+    ~> "reCaptcha" := reCaptcha
+    ~> jsonEmptyObject
+
+instance decodeJsonRegister :: DecodeJson Register where
+  decodeJson json = do
+    o <- decodeJson json
+    email <- o .? "email"
+    password <- o .? "password"
+    social <- o .? "social"
+    reCaptcha <- o .? "reCaptcha"
+    pure (Register {email,password,social,reCaptcha})

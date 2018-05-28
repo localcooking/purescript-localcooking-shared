@@ -5,10 +5,12 @@ import Prelude
 import Data.Maybe (Maybe (..))
 import Data.ArrayBuffer.Types (Uint8Array)
 import Data.ArrayBuffer.Base64 (encodeBase64, decodeBase64)
-import Data.ArrayBuffer.Extra (newUint8Array)
+import Data.ArrayBuffer.Extra (newUint8Array, uint8ArrayToArray)
 import Data.Argonaut (class EncodeJson, encodeJson, class DecodeJson, decodeJson, fail)
 import Data.TextEncoder (encodeUtf8)
 import Data.String.Normalize (nfkc)
+import Data.Generic (class Generic, toSpine, fromSpine, GenericSignature (SigProd))
+import Type.Proxy (Proxy (..))
 import Crypto.Scrypt (SCRYPT, scrypt)
 import Control.Monad.Aff (Aff)
 import Test.QuickCheck (class Arbitrary)
@@ -16,6 +18,11 @@ import Test.QuickCheck.Gen (chooseInt, vectorOf)
 
 
 newtype HashedPassword = HashedPassword Uint8Array
+
+instance genericHashedPassword :: Generic HashedPassword where
+  toSpine (HashedPassword xs) = toSpine (uint8ArrayToArray xs)
+  toSignature Proxy = SigProd "HashedPassword" []
+  fromSpine xs = (HashedPassword <<< newUint8Array) <$> fromSpine xs
 
 instance eqHashedPassword :: Eq HashedPassword where
   eq (HashedPassword x) (HashedPassword y) = encodeBase64 x == encodeBase64 y
@@ -27,8 +34,11 @@ instance arbitraryHashedPassword :: Arbitrary HashedPassword where
     where
       byte = chooseInt 0 255
 
+instance showHashedPassword :: Show HashedPassword where
+  show (HashedPassword x) = encodeBase64 x
+
 instance encodeJsonHashedPassword :: EncodeJson HashedPassword where
-  encodeJson (HashedPassword x) = encodeJson (encodeBase64 x)
+  encodeJson = encodeJson <<< show
 
 instance decodeJsonHashedPassword :: DecodeJson HashedPassword where
   decodeJson json = do

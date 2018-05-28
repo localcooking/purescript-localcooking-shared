@@ -16,6 +16,7 @@ import Text.Parsing.StringParser as Parser
 import Text.Parsing.StringParser.String (regex)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
 import Control.Monad.Eff.Exception (try)
+import Test.QuickCheck (class Arbitrary, arbitrary)
 
 
 newtype JSONDate = JSONDate Date

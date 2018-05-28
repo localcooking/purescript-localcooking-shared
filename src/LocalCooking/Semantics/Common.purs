@@ -6,9 +6,13 @@ import Facebook.Types (FacebookUserId)
 
 import Prelude
 import Data.DateTime (DateTime)
+import Data.DateTime.JSON (JSONDateTime (..))
+import Data.DateTime.Locale (LocalValue (..))
 import Data.Maybe (Maybe)
 import Data.Generic (class Generic, gEq, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail, (:=), (~>), jsonEmptyObject, (.?))
+import Control.Monad.Eff.Unsafe (unsafePerformEff)
+import Control.Monad.Eff.Now (nowDateTime)
 import Text.Email.Validate (EmailAddress)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 import Test.QuickCheck.Gen (oneOf)
@@ -57,7 +61,9 @@ derive instance genericUser :: Generic User
 instance arbitraryUser :: Arbitrary User where
   arbitrary = do
     id <- arbitrary
-    created <- arbitrary
+    let created = unsafePerformEff $ do
+          LocalValue _ x <- nowDateTime
+          pure x
     email <- arbitrary
     social <- arbitrary
     emailConfirmed <- arbitrary
@@ -73,7 +79,7 @@ instance showUser :: Show User where
 instance encodeJsonUser :: EncodeJson User where
   encodeJson (User {id,created,email,social,emailConfirmed,roles})
     =  "id" := id
-    ~> "created" := created
+    ~> "created" := JSONDateTime created
     ~> "email" := email
     ~> "social" := social
     ~> "emailConfirmed" := emailConfirmed
@@ -84,7 +90,7 @@ instance decodeJsonUser :: DecodeJson User where
   decodeJson json = do
     o <- decodeJson json
     id <- o .? "id"
-    created <- o .? "created"
+    JSONDateTime created <- o .? "created"
     email <- o .? "email"
     social <- o .? "social"
     emailConfirmed <- o .? "emailConfirmed"

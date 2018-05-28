@@ -35,6 +35,12 @@ newtype ChefSettings = ChefSettings
 
 derive instance genericChefSettings :: Generic ChefSettings
 
+instance eqChefSettings :: Eq ChefSettings where
+  eq = gEq
+
+instance showChefSettings :: Show ChefSettings where
+  show = gShow
+
 instance arbitraryChefSettings :: Arbitrary ChefSettings where
   arbitrary = do
     name <- arbitrary
@@ -56,6 +62,12 @@ newtype MenuSettings = MenuSettings
   }
 
 derive instance genericMenuSettings :: Generic MenuSettings
+
+instance eqMenuSettings :: Eq MenuSettings where
+  eq = gEq
+
+instance showMenuSettings :: Show MenuSettings where
+  show = gShow
 
 instance arbitraryMenuSettings :: Arbitrary MenuSettings where
   arbitrary = do
@@ -82,6 +94,12 @@ newtype MealSettings = MealSettings
 
 derive instance genericMealSettings :: Generic MealSettings
 
+instance eqMealSettings :: Eq MealSettings where
+  eq = gEq
+
+instance showMealSettings :: Show MealSettings where
+  show = gShow
+
 instance arbitraryMealSettings :: Arbitrary MealSettings where
   arbitrary = do
     title <- arbitrary
@@ -104,3 +122,17 @@ newtype Order = Order
   }
 
 derive instance genericOrder :: Generic Order
+
+instance eqOrder :: Eq Order where
+  eq = gEq
+
+instance showOrder :: Show Order where
+  show = gShow
+
+instance arbitraryOrder :: Arbitrary Order where
+  arbitrary = do
+    meal <- arbitrary
+    progress <- arbitrary
+    volume <- arbitrary
+    id <- arbitrary
+    pure (Order {meal,progress,volume,id})

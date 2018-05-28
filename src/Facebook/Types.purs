@@ -20,6 +20,16 @@ derive newtype instance arbitraryFacebookUserId :: Arbitrary FacebookUserId
 
 
 
+newtype FacebookLoginCode = FacebookLoginCode String
+
+derive instance genericFacebookLoginCode :: Generic FacebookLoginCode
+derive newtype instance eqFacebookLoginCode :: Eq FacebookLoginCode
+derive newtype instance showFacebookLoginCode :: Show FacebookLoginCode
+derive newtype instance encodeJsonFacebookLoginCode :: EncodeJson FacebookLoginCode
+derive newtype instance decodeJsonFacebookLoginCode :: DecodeJson FacebookLoginCode
+derive newtype instance arbitraryFacebookLoginCode :: Arbitrary FacebookLoginCode
+
+
 data FacebookLoginReturnError
   = FacebookLoginVerifyParseFailure String
   | FacebookLoginUserDetailsParseFailure String

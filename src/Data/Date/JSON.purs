@@ -5,6 +5,7 @@ import Data.Int as Int
 import Data.JSDate as JSDate
 import Data.Date (Date)
 import Data.Date as Date
+import Data.DateTime.Locale (LocalValue (..))
 import Data.Maybe (Maybe (..))
 import Data.Either (Either (..))
 import Data.Enum (fromEnum)
@@ -15,14 +16,20 @@ import Text.Parsing.StringParser (Parser, runParser)
 import Text.Parsing.StringParser as Parser
 import Text.Parsing.StringParser.String (regex)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
+import Control.Monad.Eff.Now (nowDate)
 import Control.Monad.Eff.Exception (try)
-import Test.QuickCheck (class Arbitrary, arbitrary)
+import Test.QuickCheck (class Arbitrary)
 
 
 newtype JSONDate = JSONDate Date
 
 getJSONDate :: JSONDate -> Date
 getJSONDate (JSONDate x) = x
+
+instance arbitraryJSONDate :: Arbitrary JSONDate where
+  arbitrary = pure $ unsafePerformEff $ do
+    LocalValue _ x <- nowDate
+    pure (JSONDate x)
 
 instance showJsonJSONDate :: Show JSONDate where
   show (JSONDate x) =

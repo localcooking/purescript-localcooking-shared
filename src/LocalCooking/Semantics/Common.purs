@@ -9,7 +9,6 @@ import Google.ReCaptcha (ReCaptchaResponse)
 import Prelude
 import Data.DateTime (DateTime)
 import Data.DateTime.JSON (JSONDateTime (..))
-import Data.DateTime.Locale (LocalValue (..))
 import Data.Maybe (Maybe)
 import Data.Generic (class Generic, gEq, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail, (:=), (~>), jsonEmptyObject, (.?))
@@ -63,9 +62,7 @@ derive instance genericUser :: Generic User
 instance arbitraryUser :: Arbitrary User where
   arbitrary = do
     id <- arbitrary
-    let created = unsafePerformEff $ do
-          LocalValue _ x <- nowDateTime
-          pure x
+    JSONDateTime created <- arbitrary
     email <- arbitrary
     social <- arbitrary
     emailConfirmed <- arbitrary

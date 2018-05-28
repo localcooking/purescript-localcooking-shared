@@ -7,6 +7,7 @@ import Data.Time as Time
 import Data.Date as Date
 import Data.DateTime (DateTime)
 import Data.DateTime as DateTime
+import Data.DateTime.Locale (LocalValue (..))
 import Data.Maybe (Maybe (..))
 import Data.Either (Either (..))
 import Data.Enum (fromEnum)
@@ -17,13 +18,20 @@ import Text.Parsing.StringParser (Parser, runParser)
 import Text.Parsing.StringParser as Parser
 import Text.Parsing.StringParser.String (regex)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
+import Control.Monad.Eff.Now (nowDateTime)
 import Control.Monad.Eff.Exception (try)
+import Test.QuickCheck (class Arbitrary)
 
 
 newtype JSONDateTime = JSONDateTime DateTime
 
 getJSONDateTime :: JSONDateTime -> DateTime
 getJSONDateTime (JSONDateTime x) = x
+
+instance arbitraryJSONDate :: Arbitrary JSONDateTime where
+  arbitrary = pure $ unsafePerformEff $ do
+    LocalValue _ x <- nowDateTime
+    pure (JSONDateTime x)
 
 instance showJSONDateTime :: Show JSONDateTime where
   show (JSONDateTime x) =

@@ -13,9 +13,7 @@ import Data.String.Markdown (MarkdownText)
 import Data.String.Permalink (Permalink)
 import Data.Image.Source (ImageSource)
 import Data.Date (Date)
-import Data.DateTime (DateTime)
-import Data.DateTime.JSON (JSONDateTime (..))
-import Data.DateTime.Locale (LocalValue (..))
+import Data.Date.JSON (JSONDate (..), getJSONDate)
 import Data.Maybe (Maybe)
 import Data.Generic (class Generic, gEq, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail, (:=), (~>), jsonEmptyObject, (.?))
@@ -37,6 +35,16 @@ newtype ChefSettings = ChefSettings
 
 derive instance genericChefSettings :: Generic ChefSettings
 
+instance arbitraryChefSettings :: Arbitrary ChefSettings where
+  arbitrary = do
+    name <- arbitrary
+    permalink <- arbitrary
+    images <- arbitrary
+    avatar <- arbitrary
+    bio <- arbitrary
+    tags <- arbitrary
+    pure (ChefSettings {name,permalink,images,avatar,bio,tags})
+
 
 newtype MenuSettings = MenuSettings
   { published   :: Maybe Date
@@ -48,6 +56,16 @@ newtype MenuSettings = MenuSettings
   }
 
 derive instance genericMenuSettings :: Generic MenuSettings
+
+instance arbitraryMenuSettings :: Arbitrary MenuSettings where
+  arbitrary = do
+    published <- map getJSONDate <$> arbitrary
+    JSONDate deadline <- arbitrary
+    heading <- arbitrary
+    description <- arbitrary
+    tags <- arbitrary
+    images <- arbitrary
+    pure (MenuSettings {published,deadline,heading,description,images,tags})
 
 
 newtype MealSettings = MealSettings
@@ -63,6 +81,19 @@ newtype MealSettings = MealSettings
   }
 
 derive instance genericMealSettings :: Generic MealSettings
+
+instance arbitraryMealSettings :: Arbitrary MealSettings where
+  arbitrary = do
+    title <- arbitrary
+    permalink <- arbitrary
+    heading <- arbitrary
+    description <- arbitrary
+    instructions <- arbitrary
+    images <- arbitrary
+    ingredients <- arbitrary
+    tags <- arbitrary
+    price <- arbitrary
+    pure (MealSettings {title,permalink,heading,description,instructions,images,ingredients,tags,price})
 
 
 newtype Order = Order

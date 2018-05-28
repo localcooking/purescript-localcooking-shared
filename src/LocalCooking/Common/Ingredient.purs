@@ -8,8 +8,18 @@ import Data.Argonaut (class EncodeJson, class DecodeJson, (~>), (:=), decodeJson
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
 
+newtype IngredientName = IngredientName String
+
+derive instance genericIngredientName :: Generic IngredientName
+derive newtype instance arbitraryIngredientName :: Arbitrary IngredientName
+derive newtype instance eqIngredientName :: Eq IngredientName
+derive newtype instance showIngredientName :: Show IngredientName
+derive newtype instance encodeJsonIngredientName :: EncodeJson IngredientName
+derive newtype instance decodeJsonIngredientName :: DecodeJson IngredientName
+
+
 newtype Ingredient = Ingredient
-  { name  :: String
+  { name  :: IngredientName
   , voids :: Array Diet
   }
 

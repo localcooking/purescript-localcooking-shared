@@ -2,7 +2,7 @@ module LocalCooking.Common.Rating where
 
 import Prelude
 import Data.NonEmpty (NonEmpty (..))
-import Data.Generic (class Generic, gEq, gCompare)
+import Data.Generic (class Generic, gEq, gCompare, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail)
 import Test.QuickCheck (class Arbitrary)
 import Test.QuickCheck.Gen (oneOf)
@@ -46,7 +46,10 @@ instance ordRating :: Ord Rating where
   compare = gCompare
 
 instance showRating :: Show Rating where
-  show x = case x of
+  show = gShow
+
+instance encodeJsonRating :: EncodeJson Rating where
+  encodeJson x = encodeJson $ case x of
     ZeroStar -> "0"
     HalfStar -> "1/2"
     OneStar -> "1"
@@ -58,9 +61,6 @@ instance showRating :: Show Rating where
     FourStar -> "4"
     FourHalfStar -> "9/2"
     FiveStar -> "5"
-
-instance encodeJsonRating :: EncodeJson Rating where
-  encodeJson = encodeJson <<< show
 
 instance decodeJsonRating :: DecodeJson Rating where
   decodeJson json = do

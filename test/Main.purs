@@ -22,6 +22,7 @@ import LocalCooking.Common.User.Role (UserRole)
 
 import LocalCooking.Semantics.Common (SocialLoginForm, User, Register, Login, SocialLogin)
 import LocalCooking.Semantics.Mitch as Mitch
+import LocalCooking.Semantics.Chef as Chef
 
 import Prelude
 import Data.Either (Either (..))
@@ -71,6 +72,11 @@ main = do
   jsonIsoAssert "LocalCooking.Semantics.Mitch.ChefSynopsis" (Proxy :: Proxy Mitch.ChefSynopsis)
   jsonIsoAssert "LocalCooking.Semantics.Mitch.Chef" (Proxy :: Proxy Mitch.Chef)
   jsonIsoAssert "LocalCooking.Semantics.Mitch.Order" (Proxy :: Proxy Mitch.Order)
+  log "--------"
+  jsonIsoAssert "LocalCooking.Semantics.Chef.MealSettings" (Proxy :: Proxy Chef.MealSettings)
+  jsonIsoAssert "LocalCooking.Semantics.Chef.MenuSettings" (Proxy :: Proxy Chef.MenuSettings)
+  jsonIsoAssert "LocalCooking.Semantics.Chef.ChefSettings" (Proxy :: Proxy Chef.ChefSettings)
+  jsonIsoAssert "LocalCooking.Semantics.Chef.Order" (Proxy :: Proxy Chef.Order)
 
 
 jsonIsoAssert :: forall a

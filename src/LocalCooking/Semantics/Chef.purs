@@ -14,6 +14,8 @@ import Data.String.Permalink (Permalink)
 import Data.Image.Source (ImageSource)
 import Data.Date (Date)
 import Data.Date.JSON (JSONDate (..), getJSONDate)
+import Data.DateTime (DateTime)
+import Data.DateTime.JSON (JSONDateTime (..), getJSONDateTime)
 import Data.Maybe (Maybe)
 import Data.Generic (class Generic, gEq, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail, (:=), (~>), jsonEmptyObject, (.?))
@@ -119,6 +121,7 @@ newtype Order = Order
   , progress :: OrderProgress
   , volume   :: Int
   , id       :: StoredOrderId
+  , time     :: DateTime
   }
 
 derive instance genericOrder :: Generic Order
@@ -135,4 +138,5 @@ instance arbitraryOrder :: Arbitrary Order where
     progress <- arbitrary
     volume <- arbitrary
     id <- arbitrary
-    pure (Order {meal,progress,volume,id})
+    JSONDateTime time <- arbitrary
+    pure (Order {meal,progress,volume,id,time})

@@ -45,7 +45,7 @@ instance showJsonJSONDate :: Show JSONDate where
   show (JSONDate x) =
     let date' = JSDate.jsdate
           { year: Int.toNumber $ fromEnum $ Date.year x
-          , month: Int.toNumber $ fromEnum $ Date.month x
+          , month: Int.toNumber $ fromEnum (Date.month x) - 1
           , day: Int.toNumber $ fromEnum $ Date.day x
           , hour: 0.0
           , minute: 0.0

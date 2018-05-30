@@ -49,7 +49,7 @@ instance showJSONDateTime :: Show JSONDateTime where
         time'' = DateTime.time x
         date' = JSDate.jsdate
           { year: Int.toNumber $ fromEnum $ Date.year date''
-          , month: Int.toNumber $ fromEnum $ Date.month date''
+          , month: Int.toNumber $ fromEnum (Date.month date'') - 1
           , day: Int.toNumber $ fromEnum $ Date.day date''
           , hour: Int.toNumber $ fromEnum $ Time.hour time''
           , minute: Int.toNumber $ fromEnum $ Time.minute time''

@@ -16,6 +16,7 @@ import Data.Argonaut as Argonaut
 import Text.Parsing.StringParser (Parser, runParser)
 import Text.Parsing.StringParser as Parser
 import Text.Parsing.StringParser.String (regex)
+import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
 import Control.Monad.Eff.Now (nowDate)
 import Control.Monad.Eff.Exception (try)
@@ -32,10 +33,13 @@ instance eqJSONDate :: Eq JSONDate where
 getJSONDate :: JSONDate -> Date
 getJSONDate (JSONDate x) = x
 
+nowJSONDate :: Eff _ JSONDate
+nowJSONDate = do
+  LocalValue _ x <- nowDate
+  pure (JSONDate x)
+
 instance arbitraryJSONDate :: Arbitrary JSONDate where
-  arbitrary = pure $ unsafePerformEff $ do
-    LocalValue _ x <- nowDate
-    pure (JSONDate x)
+  arbitrary = pure $ unsafePerformEff nowJSONDate
 
 instance showJsonJSONDate :: Show JSONDate where
   show (JSONDate x) =

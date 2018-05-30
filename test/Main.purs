@@ -28,7 +28,7 @@ import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson
 import Type.Proxy (Proxy (..))
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
-import Test.QuickCheck (class Arbitrary, quickCheck)
+import Test.QuickCheck (class Arbitrary, quickCheck, Result (..))
 
 
 
@@ -66,6 +66,7 @@ jsonIsoAssert :: forall a
                . EncodeJson a
               => DecodeJson a
               => Eq a
+              => Show a
               => Arbitrary a
               => String -> Proxy a -> Eff _ Unit
 jsonIsoAssert name Proxy = do
@@ -74,7 +75,9 @@ jsonIsoAssert name Proxy = do
   log ""
 
 
-jsonIso :: forall a. EncodeJson a => DecodeJson a => Eq a => a -> Boolean
+jsonIso :: forall a. EncodeJson a => DecodeJson a => Eq a => Show a => a -> Result
 jsonIso x = case decodeJson (encodeJson x) of
-  Left _ -> false
-  Right y -> x == y
+  Left x -> Failed $ "decoding failure: " <> x <> ", " <> show x
+  Right y
+    | x == y -> Success
+    | otherwise -> Failed $ "Not identical: " <> show x <> ", " <> show y

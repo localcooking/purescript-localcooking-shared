@@ -512,3 +512,45 @@ instance decodeJsonChef :: DecodeJson Chef where
     tags <- o .? "tags"
     menus <- o .? "menus"
     pure (Chef {name,permalink,images,bio,rating,reviews,activeOrders,totalOrders,tags,menus})
+
+
+
+newtype Order = Order
+  { meal :: MealSynopsis
+  , progress :: OrderProgress
+  , time :: DateTime
+  , volume :: Int
+  }
+
+derive instance genericOrder :: Generic Order
+
+instance eqOrder :: Eq Order where
+  eq = gEq
+
+instance showOrder :: Show Order where
+  show = gShow
+
+instance arbitraryOrder :: Arbitrary Order where
+  arbitrary = do
+    meal <- arbitrary
+    progress <- arbitrary
+    JSONDateTime time <- arbitrary
+    volume <- arbitrary
+    pure (Order {meal,progress,time,volume})
+
+instance encodeJsonOrder :: EncodeJson Order where
+  encodeJson (Order {meal,progress,time,volume})
+    =  "meal" := meal
+    ~> "progress" := progress
+    ~> "time" := JSONDateTime time
+    ~> "volume" := volume
+    ~> jsonEmptyObject
+
+instance decodeJsonOrder :: DecodeJson Order where
+  decodeJson json = do
+    o <- decodeJson json
+    meal <- o .? "meal"
+    progress <- o .? "progress"
+    JSONDateTime time <- o .? "time"
+    volume <- o .? "volume"
+    pure (Order {meal,progress,time,volume})

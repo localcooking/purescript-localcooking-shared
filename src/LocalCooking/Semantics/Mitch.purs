@@ -29,9 +29,6 @@ import Test.QuickCheck.Gen (oneOf)
 
 
 
--- TODO FIXME arbitrary instances
-
-
 newtype ReviewSynopsis = ReviewSynopsis
   { rating  :: Rating
   , heading :: String

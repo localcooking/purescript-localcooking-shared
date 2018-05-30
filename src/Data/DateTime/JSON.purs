@@ -12,6 +12,7 @@ import Data.Maybe (Maybe (..))
 import Data.Either (Either (..))
 import Data.Enum (fromEnum)
 import Data.String as String
+import Data.Generic (class Generic, gEq)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson)
 import Data.Argonaut as Argonaut
 import Text.Parsing.StringParser (Parser, runParser)
@@ -24,6 +25,11 @@ import Test.QuickCheck (class Arbitrary)
 
 
 newtype JSONDateTime = JSONDateTime DateTime
+
+derive instance genericJSONDateTime :: Generic JSONDateTime
+
+instance eqJSONDateTime :: Eq JSONDateTime where
+  eq = gEq
 
 getJSONDateTime :: JSONDateTime -> DateTime
 getJSONDateTime (JSONDateTime x) = x

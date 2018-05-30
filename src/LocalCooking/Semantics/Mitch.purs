@@ -516,10 +516,10 @@ instance decodeJsonChef :: DecodeJson Chef where
 
 
 newtype Order = Order
-  { meal :: MealSynopsis
+  { meal     :: MealSynopsis
   , progress :: OrderProgress
-  , time :: DateTime
-  , volume :: Int
+  , time     :: DateTime
+  , volume   :: Int
   }
 
 derive instance genericOrder :: Generic Order

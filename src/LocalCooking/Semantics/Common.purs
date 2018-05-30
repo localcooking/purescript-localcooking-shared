@@ -97,7 +97,7 @@ instance decodeJsonUser :: DecodeJson User where
     pure (User {id,created,email,social,emailConfirmed,roles})
 
 
-
+-- TODO FIXME phone register / login
 newtype Register = Register
   { email     :: EmailAddress
   , password  :: HashedPassword

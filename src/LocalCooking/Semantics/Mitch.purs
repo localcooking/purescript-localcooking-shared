@@ -23,7 +23,6 @@ import Data.Generic (class Generic, gEq, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail, (:=), (~>), jsonEmptyObject, (.?))
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
 import Control.Monad.Eff.Now (nowDateTime)
-import Text.Email.Validate (EmailAddress)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 import Test.QuickCheck.Gen (oneOf)
 
@@ -46,6 +45,13 @@ instance eqReviewSynopsis :: Eq ReviewSynopsis where
 
 instance showReviewSynopsis :: Show ReviewSynopsis where
   show = gShow
+
+instance arbitraryReviewSynopsis :: Arbitrary ReviewSynopsis where
+  arbitrary = do
+    rating <- arbitrary
+    heading <- arbitrary
+    id <- arbitrary
+    pure (ReviewSynopsis {rating,heading,id})
 
 instance encodeJsonReviewSynopsis :: EncodeJson ReviewSynopsis where
   encodeJson (ReviewSynopsis {rating,heading,id})
@@ -89,6 +95,16 @@ instance eqReview :: Eq Review where
 instance showReview :: Show Review where
   show = gShow
 
+instance arbitraryReview :: Arbitrary Review where
+  arbitrary = do
+    rating <- arbitrary
+    JSONDateTime submitted <- arbitrary
+    heading <- arbitrary
+    id <- arbitrary
+    body <- arbitrary
+    images <- arbitrary
+    pure (Review {rating,submitted,heading,id,body,images})
+
 instance encodeJsonReview :: EncodeJson Review where
   encodeJson (Review {rating,submitted,heading,body,images,id})
     =  "rating" := rating
@@ -129,6 +145,15 @@ instance eqMenuSynopsis :: Eq MenuSynopsis where
 instance showMenuSynopsis :: Show MenuSynopsis where
   show = gShow
 
+instance arbitraryMenuSynopsis :: Arbitrary MenuSynopsis where
+  arbitrary = do
+    published <- getJSONDate <$> arbitrary
+    deadline <- getJSONDate <$> arbitrary
+    headline <- arbitrary
+    tags <- arbitrary
+    images <- arbitrary
+    pure (MenuSynopsis {published,deadline,headline,tags,images})
+
 instance encodeJsonMenuSynopsis :: EncodeJson MenuSynopsis where
   encodeJson (MenuSynopsis {published,deadline,headline,tags,images})
     =  "published" := JSONDate published
@@ -164,6 +189,15 @@ instance eqMenu :: Eq Menu where
 
 instance showMenu :: Show Menu where
   show = gShow
+
+instance arbitraryMenu :: Arbitrary Menu where
+  arbitrary = do
+    published <- getJSONDate <$> arbitrary
+    deadline <- getJSONDate <$> arbitrary
+    description <- arbitrary
+    author <- arbitrary
+    meals <- arbitrary
+    pure (Menu {published,deadline,description,author,meals})
 
 instance encodeJsonMenu :: EncodeJson Menu where
   encodeJson (Menu {published,deadline,description,author,meals})
@@ -206,6 +240,19 @@ instance eqMealSynopsis :: Eq MealSynopsis where
 
 instance showMealSynopsis :: Show MealSynopsis where
   show = gShow
+
+instance arbitraryMealSynopsis :: Arbitrary MealSynopsis where
+  arbitrary = do
+    title <- arbitrary
+    permalink <- arbitrary
+    heading <- arbitrary
+    images <- arbitrary
+    rating <- arbitrary
+    orders <- arbitrary
+    tags <- arbitrary
+    diets <- arbitrary
+    price <- arbitrary
+    pure (MealSynopsis {title,permalink,heading,images,rating,orders,tags,diets,price})
 
 instance encodeJsonMealSynopsis :: EncodeJson MealSynopsis where
   encodeJson (MealSynopsis {title,permalink,heading,images,rating,orders,tags,diets,price})
@@ -258,6 +305,35 @@ instance eqMeal :: Eq Meal where
 
 instance showMeal :: Show Meal where
   show = gShow
+
+instance arbitraryMeal :: Arbitrary Meal where
+  arbitrary = do
+    title <- arbitrary
+    permalink <- arbitrary
+    description <- arbitrary
+    instructions <- arbitrary
+    images <- arbitrary
+    ingredients <- arbitrary
+    diets <- arbitrary
+    tags <- arbitrary
+    orders <- arbitrary
+    rating <- arbitrary
+    reviews <- arbitrary
+    price <- arbitrary
+    pure $ Meal
+      { title
+      , permalink
+      , description
+      , instructions
+      , images
+      , ingredients
+      , rating
+      , orders
+      , tags
+      , diets
+      , reviews
+      , price
+      }
 
 instance encodeJsonMeal :: EncodeJson Meal where
   encodeJson
@@ -340,6 +416,16 @@ instance eqChefSynopsis :: Eq ChefSynopsis where
 instance showChefSynopsis :: Show ChefSynopsis where
   show = gShow
 
+instance arbitraryChefSynopsis :: Arbitrary ChefSynopsis where
+  arbitrary = do
+    name <- arbitrary
+    permalink <- arbitrary
+    image <- arbitrary
+    rating <- arbitrary
+    orders <- arbitrary
+    tags <- arbitrary
+    pure (ChefSynopsis {name,permalink,image,rating,orders,tags})
+
 instance encodeJsonChefSynopsis :: EncodeJson ChefSynopsis where
   encodeJson (ChefSynopsis {name,permalink,image,rating,orders,tags})
     =  "name" := name
@@ -360,3 +446,69 @@ instance decodeJsonChefSynopsis :: DecodeJson ChefSynopsis where
     orders <- o .? "orders"
     tags <- o .? "tags"
     pure (ChefSynopsis {name,permalink,image,rating,orders,tags})
+
+
+
+newtype Chef = Chef
+  { name :: Name
+  , permalink :: Permalink
+  , images :: Array ImageSource
+  , bio :: MarkdownText
+  , rating :: Rating
+  , reviews :: Array ReviewSynopsis
+  , activeOrders :: Int
+  , totalOrders :: Int
+  , tags :: Array ChefTag
+  , menus :: Array MenuSynopsis
+  }
+
+derive instance genericChef :: Generic Chef
+
+instance eqChef :: Eq Chef where
+  eq = gEq
+
+instance showChef :: Show Chef where
+  show = gShow
+
+instance arbitraryChef :: Arbitrary Chef where
+  arbitrary = do
+    name <- arbitrary
+    permalink <- arbitrary
+    images <- arbitrary
+    bio <- arbitrary
+    rating <- arbitrary
+    reviews <- arbitrary
+    activeOrders <- arbitrary
+    totalOrders <- arbitrary
+    tags <- arbitrary
+    menus <- arbitrary
+    pure (Chef {name,permalink,images,bio,rating,reviews,activeOrders,totalOrders,tags,menus})
+
+instance encodeJsonChef :: EncodeJson Chef where
+  encodeJson (Chef {name,permalink,images,bio,rating,reviews,activeOrders,totalOrders,tags,menus})
+    =  "name" := name
+    ~> "permalink" := permalink
+    ~> "images" := images
+    ~> "bio" := bio
+    ~> "rating" := rating
+    ~> "reviews" := reviews
+    ~> "activeOrders" := activeOrders
+    ~> "totalOrders" := totalOrders
+    ~> "tags" := tags
+    ~> "menus" := menus
+    ~> jsonEmptyObject
+
+instance decodeJsonChef :: DecodeJson Chef where
+  decodeJson json = do
+    o <- decodeJson json
+    name <- o .? "name"
+    permalink <- o .? "permalink"
+    images <- o .? "images"
+    bio <- o .? "bio"
+    rating <- o .? "rating"
+    reviews <- o .? "reviews"
+    activeOrders <- o .? "activeOrders"
+    totalOrders <- o .? "totalOrders"
+    tags <- o .? "tags"
+    menus <- o .? "menus"
+    pure (Chef {name,permalink,images,bio,rating,reviews,activeOrders,totalOrders,tags,menus})

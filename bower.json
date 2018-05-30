@@ -18,7 +18,7 @@
     "purescript-encoding": "^0.0.4",
     "purescript-quickcheck": "^4.6.2",
     "purescript-react": "^5.1.0",
-    "purescript-js-date": "^5.2.0",
+    "purescript-js-date": "^4.0.0",
     "purescript-uri": "git@git.localcooking.com:private-tooling/purescript-uri.git",
     "purescript-uri-extra": "^0.0.3",
     "purescript-email-validate": "git@git.localcooking.com:private-tooling/purescript-email-validate.git#0d31c1378916bedae77bdfff4e04f2e48e157495",

@@ -21,6 +21,7 @@ import LocalCooking.Common.User.Password (HashedPassword)
 import LocalCooking.Common.User.Role (UserRole)
 
 import LocalCooking.Semantics.Common (SocialLoginForm, User, Register, Login, SocialLogin)
+import LocalCooking.Semantics.Mitch as Mitch
 
 import Prelude
 import Data.Either (Either (..))
@@ -60,6 +61,16 @@ main = do
   jsonIsoAssert "LocalCooking.Semantics.Common.Register" (Proxy :: Proxy Register)
   jsonIsoAssert "LocalCooking.Semantics.Common.Login" (Proxy :: Proxy Login)
   jsonIsoAssert "LocalCooking.Semantics.Common.SocialLogin" (Proxy :: Proxy SocialLogin)
+  log "--------"
+  jsonIsoAssert "LocalCooking.Semantics.Mitch.ReviewSynopsis" (Proxy :: Proxy Mitch.ReviewSynopsis)
+  jsonIsoAssert "LocalCooking.Semantics.Mitch.Review" (Proxy :: Proxy Mitch.Review)
+  jsonIsoAssert "LocalCooking.Semantics.Mitch.MealSynopsis" (Proxy :: Proxy Mitch.MealSynopsis)
+  jsonIsoAssert "LocalCooking.Semantics.Mitch.Meal" (Proxy :: Proxy Mitch.Meal)
+  jsonIsoAssert "LocalCooking.Semantics.Mitch.MenuSynopsis" (Proxy :: Proxy Mitch.MenuSynopsis)
+  jsonIsoAssert "LocalCooking.Semantics.Mitch.Menu" (Proxy :: Proxy Mitch.Menu)
+  jsonIsoAssert "LocalCooking.Semantics.Mitch.ChefSynopsis" (Proxy :: Proxy Mitch.ChefSynopsis)
+  jsonIsoAssert "LocalCooking.Semantics.Mitch.Chef" (Proxy :: Proxy Mitch.Chef)
+  jsonIsoAssert "LocalCooking.Semantics.Mitch.Order" (Proxy :: Proxy Mitch.Order)
 
 
 jsonIsoAssert :: forall a

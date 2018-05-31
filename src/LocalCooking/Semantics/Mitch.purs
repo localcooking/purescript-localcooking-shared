@@ -4,12 +4,13 @@ import LocalCooking.Database.Schema (StoredMealId, StoredOrderId, StoredReviewId
 import LocalCooking.Common.User.Name (Name)
 import LocalCooking.Common.Tag.Chef (ChefTag)
 import LocalCooking.Common.Tag.Meal (MealTag)
-import LocalCooking.Common.Ingredient (Ingredient)
+import LocalCooking.Common.Ingredient (Ingredient, IngredientName)
 import LocalCooking.Common.Order (OrderProgress)
 import LocalCooking.Common.Diet (Diet)
 import LocalCooking.Common.Rating (Rating)
 
 import Prelude
+import Data.Address (USAAddress)
 import Data.Price (Price)
 import Data.String.Markdown (MarkdownText)
 import Data.String.Permalink (Permalink)
@@ -551,3 +552,45 @@ instance decodeJsonOrder :: DecodeJson Order where
     JSONDateTime time <- o .? "time"
     volume <- o .? "volume"
     pure (Order {meal,progress,time,volume})
+
+
+
+newtype Customer = Customer
+  { name :: Name
+  , address :: USAAddress
+  , diets :: Array Diet
+  , allergies :: Array IngredientName
+  }
+
+derive instance genericCustomer :: Generic Customer
+
+instance eqCustomer :: Eq Customer where
+  eq = gEq
+
+instance showCustomer :: Show Customer where
+  show = gShow
+
+instance arbitraryCustomer :: Arbitrary Customer where
+  arbitrary = do
+    name <- arbitrary
+    address <- arbitrary
+    diets <- arbitrary
+    allergies <- arbitrary
+    pure (Customer {name,address,diets,allergies})
+
+instance encodeJsonCustomer :: EncodeJson Customer where
+  encodeJson (Customer {name,address,diets,allergies})
+    =  "name" := name
+    ~> "address" := address
+    ~> "diets" := diets
+    ~> "allergies" := allergies
+    ~> jsonEmptyObject
+
+instance decodeJsonCustomer :: DecodeJson Customer where
+  decodeJson json = do
+    o <- decodeJson json
+    name <- o .? "name"
+    address <- o .? "address"
+    diets <- o .? "diets"
+    allergies <- o .? "allergies"
+    pure (Customer {name,address,diets,allergies})

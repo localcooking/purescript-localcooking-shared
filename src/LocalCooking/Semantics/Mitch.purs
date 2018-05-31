@@ -594,3 +594,40 @@ instance decodeJsonCustomer :: DecodeJson Customer where
     diets <- o .? "diets"
     allergies <- o .? "allergies"
     pure (Customer {name,address,diets,allergies})
+
+
+newtype CartEntry = CartEntry
+  { meal :: StoredMealId
+  , volume :: Int
+  , added :: DateTime
+  }
+
+derive instance genericCartEntry :: Generic CartEntry
+
+instance eqCartEntry :: Eq CartEntry where
+  eq = gEq
+
+instance showCartEntry :: Show CartEntry where
+  show = gShow
+
+instance arbitraryCartEntry :: Arbitrary CartEntry where
+  arbitrary = do
+    meal <- arbitrary
+    volume <- arbitrary
+    JSONDateTime added <- arbitrary
+    pure (CartEntry {meal,volume,added})
+
+instance encodeJsonCartEntry :: EncodeJson CartEntry where
+  encodeJson (CartEntry {meal,volume,added})
+    =  "meal" := meal
+    ~> "volume" := volume
+    ~> "added" := JSONDateTime added
+    ~> jsonEmptyObject
+
+instance decodeJsonCartEntry :: DecodeJson CartEntry where
+  decodeJson json = do
+    o <- decodeJson json
+    meal <- o .? "meal"
+    volume <- o .? "volume"
+    JSONDateTime added <- o .? "added"
+    pure (CartEntry {meal,volume,added})

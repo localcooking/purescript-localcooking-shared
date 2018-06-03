@@ -15,15 +15,13 @@ import Data.Path.Pathy (rootDir, dir, file, (</>))
 import Data.Argonaut (encodeJson)
 
 
-newtype FacebookLoginLink siteLinks
+newtype FacebookLoginLink
   = FacebookLoginLink
     { redirectURL :: URI
-    , state :: FacebookLoginState siteLinks
+    , state :: FacebookLoginState
     }
 
-facebookLoginLinkToURI :: forall siteLinks
-                        . ToLocation siteLinks
-                       => FacebookClientId -> FacebookLoginLink siteLinks -> URI
+facebookLoginLinkToURI :: FacebookClientId -> FacebookLoginLink -> URI
 facebookLoginLinkToURI (FacebookClientId clientId) (FacebookLoginLink {redirectURL,state}) =
   URI
     (Just $ Scheme "https")

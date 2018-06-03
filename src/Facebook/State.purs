@@ -5,7 +5,7 @@ import Facebook.Types (FacebookUserId)
 import Prelude
 import Data.Maybe (Maybe)
 import Data.Either (Either (..))
-import Data.URI.Location (parseLocation, printLocation, class ToLocation, class FromLocation, toLocation, fromLocation)
+import Data.URI.Location (Location, parseLocation, printLocation, class ToLocation, class FromLocation, toLocation, fromLocation)
 import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?), fail)
 import Data.Generic (class Generic, gEq, gShow)
 import Data.NonEmpty (NonEmpty (..))
@@ -16,38 +16,38 @@ import Test.QuickCheck.Gen (oneOf)
 
 
 -- TODO FIXME validate siteLinks origin?
-newtype FacebookLoginState siteLinks = FacebookLoginState
-  { origin :: siteLinks
+newtype FacebookLoginState = FacebookLoginState
+  { origin :: Location -- in-site
   , formData :: Maybe FacebookLoginUnsavedFormData
   }
 
-derive instance genericFacebookLoginState :: Generic siteLinks => Generic (FacebookLoginState siteLinks)
+derive instance genericFacebookLoginState :: Generic FacebookLoginState
 
-instance eqFacebookLoginState :: Generic siteLinks => Eq (FacebookLoginState siteLinks) where
+instance eqFacebookLoginState :: Eq FacebookLoginState where
   eq = gEq
 
-instance arbitraryFacebookLoginState :: Arbitrary siteLinks => Arbitrary (FacebookLoginState siteLinks) where
+instance arbitraryFacebookLoginState :: Arbitrary FacebookLoginState where
   arbitrary = do
     origin <- arbitrary
     formData <- arbitrary
     pure $ FacebookLoginState {origin,formData}
 
-instance encodeJsonFacebookLoginState :: ToLocation siteLinks => EncodeJson (FacebookLoginState siteLinks) where
+instance encodeJsonFacebookLoginState :: EncodeJson FacebookLoginState where
   encodeJson (FacebookLoginState {origin,formData})
-    =  "origin" := printLocation (toLocation origin)
+    =  "origin" := printLocation origin
     ~> "formData" := formData
     ~> jsonEmptyObject
 
-instance decodeJsonFacebookLoginState :: FromLocation siteLinks => DecodeJson (FacebookLoginState siteLinks) where
+instance decodeJsonFacebookLoginState :: DecodeJson FacebookLoginState where
   decodeJson json = do
     o <- decodeJson json
     formData <- o .? "formData"
     s <- o .? "origin"
     case runParser parseLocation s of
       Left e -> fail (show e)
-      Right loc -> case fromLocation loc of
-        Left e -> fail e
-        Right origin -> pure $ FacebookLoginState {origin,formData}
+      Right origin -> pure $ FacebookLoginState {origin,formData} -- case fromLocation loc of
+        -- Left e -> fail e
+        -- Right origin -> pure $ FacebookLoginState {origin,formData}
 
 
 

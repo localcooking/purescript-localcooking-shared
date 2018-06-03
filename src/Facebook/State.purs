@@ -15,6 +15,7 @@ import Test.QuickCheck (class Arbitrary, arbitrary)
 import Test.QuickCheck.Gen (oneOf)
 
 
+-- TODO FIXME validate siteLinks origin?
 newtype FacebookLoginState siteLinks = FacebookLoginState
   { origin :: siteLinks
   , formData :: Maybe FacebookLoginUnsavedFormData

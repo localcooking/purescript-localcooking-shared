@@ -1,6 +1,7 @@
 module Facebook.Call where
 
 import Facebook.Types (FacebookClientId (..))
+import Facebook.State (FacebookLoginState)
 
 import Prelude
 import Data.Either (Either (..))
@@ -8,20 +9,21 @@ import Data.Maybe (Maybe (..))
 import Data.Tuple (Tuple (..))
 import Data.URI (URI (..), HierarchicalPart (..), Scheme (..), Host (..), Authority (..), Query (..))
 import Data.URI.URI as URI
+import Data.URI.Location (class ToLocation)
 import Data.List (List (..))
 import Data.Path.Pathy (rootDir, dir, file, (</>))
-import Data.Argonaut (class EncodeJson, encodeJson)
+import Data.Argonaut (encodeJson)
 
 
-newtype FacebookLoginLink a
+newtype FacebookLoginLink siteLinks
   = FacebookLoginLink
     { redirectURL :: URI
-    , state :: a
+    , state :: FacebookLoginState siteLinks
     }
 
-facebookLoginLinkToURI :: forall a
-                        . EncodeJson a
-                       => FacebookClientId -> FacebookLoginLink a -> URI
+facebookLoginLinkToURI :: forall siteLinks
+                        . ToLocation siteLinks
+                       => FacebookClientId -> FacebookLoginLink siteLinks -> URI
 facebookLoginLinkToURI (FacebookClientId clientId) (FacebookLoginLink {redirectURL,state}) =
   URI
     (Just $ Scheme "https")

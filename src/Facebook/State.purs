@@ -60,6 +60,7 @@ data FacebookLoginUnsavedFormData
   | FacebookLoginUnsavedFormDataSecurity
     { email :: String
     , emailConfirm :: String
+    -- TODO FIXME fbUserId here as well
     }
 
 derive instance genericFacebookLoginUnsavedFormData :: Generic FacebookLoginUnsavedFormData

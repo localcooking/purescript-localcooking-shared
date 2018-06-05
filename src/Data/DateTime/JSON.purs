@@ -11,7 +11,6 @@ import Data.DateTime.Locale (LocalValue (..))
 import Data.Maybe (Maybe (..))
 import Data.Either (Either (..))
 import Data.Enum (fromEnum)
-import Data.String as String
 import Data.Generic (class Generic, gEq)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson)
 import Data.Argonaut as Argonaut
@@ -20,7 +19,7 @@ import Text.Parsing.StringParser as Parser
 import Text.Parsing.StringParser.String (regex)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
-import Control.Monad.Eff.Now (nowDateTime)
+import Control.Monad.Eff.Now (NOW, nowDateTime)
 import Control.Monad.Eff.Exception (try)
 import Test.QuickCheck (class Arbitrary)
 
@@ -35,7 +34,7 @@ instance eqJSONDateTime :: Eq JSONDateTime where
 getJSONDateTime :: JSONDateTime -> DateTime
 getJSONDateTime (JSONDateTime x) = x
 
-nowJSONDateTime :: Eff _ JSONDateTime
+nowJSONDateTime :: forall eff. Eff (now :: NOW | eff) JSONDateTime
 nowJSONDateTime = do
   LocalValue _ x <- nowDateTime
   pure (JSONDateTime x)

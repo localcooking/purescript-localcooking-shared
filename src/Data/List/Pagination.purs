@@ -1,11 +1,9 @@
 module Data.List.Pagination where
 
 import Prelude
-import Data.NonEmpty (NonEmpty (..))
-import Data.Generic (class Generic, gEq, gCompare, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail, (:=), (~>), jsonEmptyObject, (.?))
+import Data.Generic (class Generic, gEq, gShow)
+import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?))
 import Test.QuickCheck (class Arbitrary, arbitrary)
-import Test.QuickCheck.Gen (oneOf)
 
 
 newtype PaginationArgs = PaginationArgs

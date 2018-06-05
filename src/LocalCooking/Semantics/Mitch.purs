@@ -1,6 +1,6 @@
 module LocalCooking.Semantics.Mitch where
 
-import LocalCooking.Database.Schema (StoredMealId, StoredOrderId, StoredReviewId)
+import LocalCooking.Database.Schema (StoredMealId, StoredReviewId)
 import LocalCooking.Common.User.Name (Name)
 import LocalCooking.Common.Tag.Chef (ChefTag)
 import LocalCooking.Common.Tag.Meal (MealTag)
@@ -18,14 +18,10 @@ import Data.Image.Source (ImageSource)
 import Data.Date (Date)
 import Data.Date.JSON (JSONDate (..), getJSONDate)
 import Data.DateTime (DateTime)
-import Data.DateTime.JSON (JSONDateTime (..), getJSONDateTime)
-import Data.Maybe (Maybe)
+import Data.DateTime.JSON (JSONDateTime (..))
 import Data.Generic (class Generic, gEq, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail, (:=), (~>), jsonEmptyObject, (.?))
-import Control.Monad.Eff.Unsafe (unsafePerformEff)
-import Control.Monad.Eff.Now (nowDateTime)
+import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?))
 import Test.QuickCheck (class Arbitrary, arbitrary)
-import Test.QuickCheck.Gen (oneOf)
 
 
 

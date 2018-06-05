@@ -1,8 +1,8 @@
 module Facebook.Types where
 
 import Prelude
-import Data.Generic (class Generic, gEq, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, jsonEmptyObject, (~>), (:=), (.?), fail)
+import Data.Generic (class Generic, gEq)
+import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, jsonEmptyObject, (~>), (:=), (.?))
 import Data.NonEmpty (NonEmpty (..))
 import Control.Alternative ((<|>))
 import Test.QuickCheck (class Arbitrary, arbitrary)
@@ -50,11 +50,11 @@ instance arbitraryFacebookLoginReturnError :: Arbitrary FacebookLoginReturnError
 
 instance encodeJsonFacebookLoginReturnError :: EncodeJson FacebookLoginReturnError where
   encodeJson x = case x of
-    FacebookLoginVerifyParseFailure x
-      -> "verifyParseFailure" := x
+    FacebookLoginVerifyParseFailure y
+      -> "verifyParseFailure" := y
       ~> jsonEmptyObject
-    FacebookLoginUserDetailsParseFailure x
-      -> "userDetailsParseFailure" := x
+    FacebookLoginUserDetailsParseFailure y
+      -> "userDetailsParseFailure" := y
       ~> jsonEmptyObject
     FacebookLoginGetTokenError' a b c d
       -> "getTokenError" :=

@@ -1,9 +1,9 @@
 module Google.ReCaptcha where
 
-import Prelude ((<$>), class Eq, class Show)
-import Data.Generic (class Generic, gEq, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson)
-import Test.QuickCheck (class Arbitrary, arbitrary)
+import Prelude (class Eq, class Show)
+import Data.Generic (class Generic)
+import Data.Argonaut (class EncodeJson, class DecodeJson)
+import Test.QuickCheck (class Arbitrary)
 
 
 -- | Response from verfiying reCaptcha value

@@ -5,7 +5,7 @@ import Facebook.Types (FacebookUserId)
 import Prelude
 import Data.Maybe (Maybe)
 import Data.Either (Either (..))
-import Data.URI.Location (Location, parseLocation, printLocation, class ToLocation, class FromLocation, toLocation, fromLocation)
+import Data.URI.Location (Location, parseLocation, printLocation)
 import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?), fail)
 import Data.Generic (class Generic, gEq, gShow)
 import Data.NonEmpty (NonEmpty (..))

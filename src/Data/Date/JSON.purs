@@ -18,7 +18,7 @@ import Text.Parsing.StringParser as Parser
 import Text.Parsing.StringParser.String (regex)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
-import Control.Monad.Eff.Now (nowDate)
+import Control.Monad.Eff.Now (NOW, nowDate)
 import Control.Monad.Eff.Exception (try)
 import Test.QuickCheck (class Arbitrary)
 
@@ -33,7 +33,7 @@ instance eqJSONDate :: Eq JSONDate where
 getJSONDate :: JSONDate -> Date
 getJSONDate (JSONDate x) = x
 
-nowJSONDate :: Eff _ JSONDate
+nowJSONDate :: forall eff. Eff (now :: NOW | eff) JSONDate
 nowJSONDate = do
   LocalValue _ x <- nowDate
   pure (JSONDate x)

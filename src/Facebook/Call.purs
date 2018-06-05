@@ -9,7 +9,6 @@ import Data.Maybe (Maybe (..))
 import Data.Tuple (Tuple (..))
 import Data.URI (URI (..), HierarchicalPart (..), Scheme (..), Host (..), Authority (..), Query (..))
 import Data.URI.URI as URI
-import Data.URI.Location (class ToLocation)
 import Data.List (List (..))
 import Data.Path.Pathy (rootDir, dir, file, (</>))
 import Data.Argonaut (encodeJson)

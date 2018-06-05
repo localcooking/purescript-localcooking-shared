@@ -15,15 +15,11 @@ import Data.Image.Source (ImageSource)
 import Data.Date (Date)
 import Data.Date.JSON (JSONDate (..), getJSONDate)
 import Data.DateTime (DateTime)
-import Data.DateTime.JSON (JSONDateTime (..), getJSONDateTime)
+import Data.DateTime.JSON (JSONDateTime (..))
 import Data.Maybe (Maybe)
 import Data.Generic (class Generic, gEq, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail, (:=), (~>), jsonEmptyObject, (.?))
-import Control.Monad.Eff.Unsafe (unsafePerformEff)
-import Control.Monad.Eff.Now (nowDateTime)
-import Text.Email.Validate (EmailAddress)
+import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?))
 import Test.QuickCheck (class Arbitrary, arbitrary)
-import Test.QuickCheck.Gen (oneOf)
 
 
 newtype ChefSettings = ChefSettings

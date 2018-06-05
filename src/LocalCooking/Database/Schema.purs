@@ -1,14 +1,8 @@
 module LocalCooking.Database.Schema where
 
 import Prelude
-import Data.Price (Price)
-import Data.Date (Date)
-import Data.Date.JSON (JSONDate (..), getJSONDate)
-import Data.Image.Source (ImageSource)
-import Data.String.Markdown (MarkdownText)
-import Data.String.Permalink (Permalink)
-import Data.Generic (class Generic, gShow, gEq)
-import Data.Argonaut (class EncodeJson, class DecodeJson, (~>), (:=), decodeJson, (.?), jsonEmptyObject)
+import Data.Generic (class Generic)
+import Data.Argonaut (class EncodeJson, class DecodeJson)
 import Test.QuickCheck (class Arbitrary)
 
 

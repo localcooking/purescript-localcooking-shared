@@ -60,7 +60,7 @@ data FacebookLoginUnsavedFormData
   | FacebookLoginUnsavedFormDataSecurity
     { email :: String
     , emailConfirm :: String
-    -- TODO FIXME socialLogin here as well
+    , socialLogin :: SocialLoginForm
     }
 
 derive instance genericFacebookLoginUnsavedFormData :: Generic FacebookLoginUnsavedFormData
@@ -77,7 +77,8 @@ instance arbitraryFacebookLoginUnsavedFormData :: Arbitrary FacebookLoginUnsaved
     )
     [ do email <- arbitrary
          emailConfirm <- arbitrary
-         pure $ FacebookLoginUnsavedFormDataSecurity {email,emailConfirm}
+         socialLogin <- arbitrary
+         pure $ FacebookLoginUnsavedFormDataSecurity {email,emailConfirm,socialLogin}
     ]
 
 instance encodeJsonFacebookLoginUnsavedFormData :: EncodeJson FacebookLoginUnsavedFormData where
@@ -89,10 +90,11 @@ instance encodeJsonFacebookLoginUnsavedFormData :: EncodeJson FacebookLoginUnsav
          ~> "socialLogin" := socialLogin
          ~> jsonEmptyObject )
       ~> jsonEmptyObject
-    FacebookLoginUnsavedFormDataSecurity {email,emailConfirm}
+    FacebookLoginUnsavedFormDataSecurity {email,emailConfirm,socialLogin}
       -> "security" :=
          ( "email" := email
          ~> "emailConfirm" := emailConfirm
+         ~> "socialLogin" := socialLogin
          ~> jsonEmptyObject )
       ~> jsonEmptyObject
 
@@ -109,5 +111,6 @@ instance decodeJsonFacebookLoginUnsavedFormData :: DecodeJson FacebookLoginUnsav
           o' <- o .? "security"
           email <- o' .? "email"
           emailConfirm <- o' .? "emailConfirm"
-          pure (FacebookLoginUnsavedFormDataSecurity {email,emailConfirm})
+          socialLogin <- o' .? "socialLogin"
+          pure (FacebookLoginUnsavedFormDataSecurity {email,emailConfirm,socialLogin})
     register <|> security

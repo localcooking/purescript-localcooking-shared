@@ -1,6 +1,6 @@
 module Facebook.State where
 
-import Facebook.Types (FacebookUserId)
+import LocalCooking.Semantics.Common (SocialLoginForm)
 
 import Prelude
 import Data.Maybe (Maybe)
@@ -55,12 +55,12 @@ data FacebookLoginUnsavedFormData
   = FacebookLoginUnsavedFormDataRegister
     { email :: String
     , emailConfirm :: String
-    , fbUserId :: Maybe FacebookUserId
+    , socialLogin :: SocialLoginForm
     }
   | FacebookLoginUnsavedFormDataSecurity
     { email :: String
     , emailConfirm :: String
-    -- TODO FIXME fbUserId here as well
+    -- TODO FIXME socialLogin here as well
     }
 
 derive instance genericFacebookLoginUnsavedFormData :: Generic FacebookLoginUnsavedFormData
@@ -72,8 +72,8 @@ instance arbitraryFacebookLoginUnsavedFormData :: Arbitrary FacebookLoginUnsaved
   arbitrary = oneOf $ NonEmpty
     ( do email <- arbitrary
          emailConfirm <- arbitrary
-         fbUserId <- arbitrary
-         pure $ FacebookLoginUnsavedFormDataRegister {email,emailConfirm,fbUserId}
+         socialLogin <- arbitrary
+         pure $ FacebookLoginUnsavedFormDataRegister {email,emailConfirm,socialLogin}
     )
     [ do email <- arbitrary
          emailConfirm <- arbitrary
@@ -82,11 +82,11 @@ instance arbitraryFacebookLoginUnsavedFormData :: Arbitrary FacebookLoginUnsaved
 
 instance encodeJsonFacebookLoginUnsavedFormData :: EncodeJson FacebookLoginUnsavedFormData where
   encodeJson x = case x of
-    FacebookLoginUnsavedFormDataRegister {email,emailConfirm,fbUserId}
+    FacebookLoginUnsavedFormDataRegister {email,emailConfirm,socialLogin}
       -> "register" :=
          ( "email" := email
          ~> "emailConfirm" := emailConfirm
-         ~> "fbUserId" := fbUserId
+         ~> "socialLogin" := socialLogin
          ~> jsonEmptyObject )
       ~> jsonEmptyObject
     FacebookLoginUnsavedFormDataSecurity {email,emailConfirm}
@@ -103,8 +103,8 @@ instance decodeJsonFacebookLoginUnsavedFormData :: DecodeJson FacebookLoginUnsav
           o' <- o .? "register"
           email <- o' .? "email"
           emailConfirm <- o' .? "emailConfirm"
-          fbUserId <- o' .? "fbUserId"
-          pure (FacebookLoginUnsavedFormDataRegister {email,emailConfirm,fbUserId})
+          socialLogin <- o' .? "socialLogin"
+          pure (FacebookLoginUnsavedFormDataRegister {email,emailConfirm,socialLogin})
         security = do
           o' <- o .? "security"
           email <- o' .? "email"

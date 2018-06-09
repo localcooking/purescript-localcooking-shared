@@ -1,5 +1,6 @@
 module LocalCooking.Global.Error where
 
+import LocalCooking.Semantics.Common (RegisterError (..))
 import Facebook.Types (FacebookLoginReturnError (..), FacebookUserId)
 
 import Prelude
@@ -20,16 +21,6 @@ data UserEmailError
 derive instance genericUserEmailError :: Generic UserEmailError
 
 instance showUserEmailError :: Show UserEmailError where
-  show = gShow
-
-
-data RegisterError
-  = RegisterErrorBadCaptchaResponse
-  | RegisterErrorEmailInUse
-
-derive instance genericRegisterError :: Generic RegisterError
-
-instance showRegisterError :: Show RegisterError where
   show = gShow
 
 
@@ -168,8 +159,9 @@ printGlobalError x = case x of
   GlobalErrorRegister mRegister -> case mRegister of
     Nothing -> "Registered! Please check your spam folder and confirm in 7 days."
     Just register -> case register of
-      RegisterErrorBadCaptchaResponse -> "Bad ReCaptcha response."
-      RegisterErrorEmailInUse -> "Email address is already registered."
+      RegisterDecodingError e -> "Couldn't decode register somehow: " <> e
+      RegisterReCaptchaFailure e -> "ReCaptcha response failure: " <> e
+      RegisterEmailTaken -> "Email address is already registered."
   GlobalErrorRedirect redirect -> case redirect of
     RedirectRegisterAuth -> "Redirected - can't register while logged in."
     RedirectUserDetailsNoAuth -> "Redirected - can't view user details while logged out."

@@ -133,7 +133,7 @@ data GlobalError
   | GlobalErrorRegister (Maybe RegisterError)
   | GlobalErrorRedirect RedirectError
   | GlobalErrorSecurity SecurityMessage
-  | GlobalErrorConfirmEmail (Maybe ConfirmEmailError)
+  | GlobalErrorConfirmEmail ConfirmEmailError
 
 derive instance genericGlobalError :: Generic GlobalError
 
@@ -170,8 +170,7 @@ printGlobalError x = case x of
   GlobalErrorSecurity sec -> case sec of
     SecuritySaveFailed -> "Error - Securty save failed."
     SecuritySaveSuccess -> "Security details saved."
-  GlobalErrorConfirmEmail mEmail -> case mEmail of
-    Nothing -> "Email confirmed!"
-    Just email -> case email of
-      ConfirmEmailTokenNonexistent -> "Error - email token nonexistent"
-      ConfirmEmailUserNonexistent -> "Error - user nonexistent"
+  GlobalErrorConfirmEmail email -> case email of
+    ConfirmEmailTokenNonexistent -> "Error - email token nonexistent"
+    ConfirmEmailUserNonexistent -> "Error - user nonexistent"
+    ConfirmEmailOk -> "Email confirmed!"

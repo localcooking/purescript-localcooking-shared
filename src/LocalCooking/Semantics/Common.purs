@@ -186,6 +186,7 @@ instance decodeJsonRegisterError :: DecodeJson RegisterError where
 data ConfirmEmailError
   = ConfirmEmailTokenNonexistent
   | ConfirmEmailUserNonexistent
+  | ConfirmEmailOk
 
 derive instance genericConfirmEmailError :: Generic ConfirmEmailError
 
@@ -200,12 +201,14 @@ instance arbitraryConfirmEmailError :: Arbitrary ConfirmEmailError where
     ( pure ConfirmEmailTokenNonexistent
     )
     [ pure ConfirmEmailUserNonexistent
+    , pure ConfirmEmailOk
     ]
 
 instance encodeJsonConfirmEmailError :: EncodeJson ConfirmEmailError where
   encodeJson x = case x of
     ConfirmEmailTokenNonexistent -> encodeJson "tokenNonexistent"
     ConfirmEmailUserNonexistent -> encodeJson "userNonexistent"
+    ConfirmEmailOk -> encodeJson "ok"
 
 instance decodeJsonConfirmEmailError :: DecodeJson ConfirmEmailError where
   decodeJson json = do
@@ -213,6 +216,7 @@ instance decodeJsonConfirmEmailError :: DecodeJson ConfirmEmailError where
     case unit of
       _ | s == "tokenNonexistent" -> pure ConfirmEmailTokenNonexistent
         | s == "userNonexistent" -> pure ConfirmEmailUserNonexistent
+        | s == "ok" -> pure ConfirmEmailOk
         | otherwise -> fail "ConfirmEmailError"
 
 

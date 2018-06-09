@@ -183,6 +183,38 @@ instance decodeJsonRegisterError :: DecodeJson RegisterError where
     obj <|> str
 
 
+data ConfirmEmailError
+  = ConfirmEmailTokenNonexistent
+  | ConfirmEmailUserNonexistent
+
+derive instance genericConfirmEmailError :: Generic ConfirmEmailError
+
+instance showConfirmEmailError :: Show ConfirmEmailError where
+  show = gShow
+
+instance eqConfirmEmailError :: Eq ConfirmEmailError where
+  eq = gEq
+
+instance arbitraryConfirmEmailError :: Arbitrary ConfirmEmailError where
+  arbitrary = oneOf $ NonEmpty
+    ( pure ConfirmEmailTokenNonexistent
+    )
+    [ pure ConfirmEmailUserNonexistent
+    ]
+
+instance encodeJsonConfirmEmailError :: EncodeJson ConfirmEmailError where
+  encodeJson x = case x of
+    ConfirmEmailTokenNonexistent -> encodeJson "tokenNonexistent"
+    ConfirmEmailUserNonexistent -> encodeJson "userNonexistent"
+
+instance decodeJsonConfirmEmailError :: DecodeJson ConfirmEmailError where
+  decodeJson json = do
+    s <- decodeJson json
+    case unit of
+      _ | s == "tokenNonexistent" -> pure ConfirmEmailTokenNonexistent
+        | s == "userNonexistent" -> pure ConfirmEmailUserNonexistent
+        | otherwise -> fail "ConfirmEmailError"
+
 
 newtype Login = Login
   { email     :: EmailAddress

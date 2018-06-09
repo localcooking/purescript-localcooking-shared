@@ -24,6 +24,8 @@ import LocalCooking.Semantics.Common (SocialLoginForm, User, Register, Login, So
 import LocalCooking.Semantics.Mitch as Mitch
 import LocalCooking.Semantics.Chef as Chef
 
+import LocalCooking.Global.Error (AuthTokenFailure)
+
 import Prelude
 import Data.Either (Either (..))
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson)
@@ -77,6 +79,8 @@ main = do
   jsonIsoAssert "LocalCooking.Semantics.Chef.MenuSettings" (Proxy :: Proxy Chef.MenuSettings)
   jsonIsoAssert "LocalCooking.Semantics.Chef.ChefSettings" (Proxy :: Proxy Chef.ChefSettings)
   jsonIsoAssert "LocalCooking.Semantics.Chef.Order" (Proxy :: Proxy Chef.Order)
+  log "--------"
+  jsonIsoAssert "LocalCooking.Global.Error.AuthTokenFailure" (Proxy :: Proxy AuthTokenFailure)
 
 
 jsonIsoAssert :: forall a
@@ -94,7 +98,7 @@ jsonIsoAssert name Proxy = do
 
 jsonIso :: forall a. EncodeJson a => DecodeJson a => Eq a => Show a => a -> Result
 jsonIso x = case decodeJson (encodeJson x) of
-  Left x -> Failed $ "decoding failure: " <> x <> ", " <> show x
+  Left y -> Failed $ "decoding failure: " <> y <> ", " <> show y
   Right y
     | x == y -> Success
     | otherwise -> Failed $ "Not identical: " <> show x <> ", " <> show y

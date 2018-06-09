@@ -5,7 +5,7 @@ import Facebook.Types (FacebookLoginReturnError (..), FacebookUserId)
 import Prelude
 import Data.Maybe (Maybe (..))
 import Data.NonEmpty (NonEmpty (..))
-import Data.Generic (class Generic, gShow)
+import Data.Generic (class Generic, gShow, gEq)
 import Data.Argonaut (class DecodeJson, class EncodeJson, (.?), decodeJson, fail, encodeJson, (:=), (~>), jsonEmptyObject)
 import Control.Alternative ((<|>))
 import Test.QuickCheck (class Arbitrary, arbitrary)
@@ -78,6 +78,9 @@ instance arbitraryAuthTokenFailure :: Arbitrary AuthTokenFailure where
 
 instance showAuthTokenFailure :: Show AuthTokenFailure where
   show = gShow
+
+instance eqAuthTokenFailure :: Eq AuthTokenFailure where
+  eq = gEq
 
 instance encodeJsonAuthTokenFailure :: EncodeJson AuthTokenFailure where
   encodeJson x = case x of

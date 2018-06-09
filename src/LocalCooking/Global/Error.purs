@@ -4,9 +4,12 @@ import Facebook.Types (FacebookLoginReturnError (..), FacebookUserId)
 
 import Prelude
 import Data.Maybe (Maybe (..))
+import Data.NonEmpty (NonEmpty (..))
 import Data.Generic (class Generic, gShow)
-import Data.Argonaut (class DecodeJson, (.?), decodeJson, fail)
+import Data.Argonaut (class DecodeJson, class EncodeJson, (.?), decodeJson, fail, encodeJson, (:=), (~>), jsonEmptyObject)
 import Control.Alternative ((<|>))
+import Test.QuickCheck (class Arbitrary, arbitrary)
+import Test.QuickCheck.Gen as QC
 
 
 
@@ -62,8 +65,43 @@ data AuthTokenFailure
 
 derive instance genericAuthTokenFailure :: Generic AuthTokenFailure
 
+instance arbitraryAuthTokenFailure :: Arbitrary AuthTokenFailure where
+  arbitrary = QC.oneOf $ NonEmpty
+    ( pure AuthTokenLoginFailure
+    )
+    [ FBLoginReturnBad <$> arbitrary <*> arbitrary
+    , FBLoginReturnDenied <$> arbitrary
+    , pure FBLoginReturnBadParse
+    , FBLoginReturnNoUser <$> arbitrary
+    , FBLoginReturnError <$> arbitrary
+    ]
+
 instance showAuthTokenFailure :: Show AuthTokenFailure where
   show = gShow
+
+instance encodeJsonAuthTokenFailure :: EncodeJson AuthTokenFailure where
+  encodeJson x = case x of
+    AuthTokenLoginFailure -> encodeJson "loginFailure"
+    FBLoginReturnBadParse -> encodeJson "bad-parse"
+    FBLoginReturnBad code msg
+      -> "fbBad" :=
+         ( "code" := code
+         ~> "msg" := msg
+         ~> jsonEmptyObject
+         )
+      ~> jsonEmptyObject
+    FBLoginReturnDenied desc
+      -> "fbDenied" :=
+         ( "desc" := desc
+         ~> jsonEmptyObject
+         )
+      ~> jsonEmptyObject
+    FBLoginReturnNoUser y
+      -> "no-user" := y
+      ~> jsonEmptyObject
+    FBLoginReturnError y
+      -> "fbLoginReturnError" := y
+      ~> jsonEmptyObject
 
 instance decodeJsonAuthTokenFailure :: DecodeJson AuthTokenFailure where
   decodeJson json = do
@@ -72,7 +110,7 @@ instance decodeJsonAuthTokenFailure :: DecodeJson AuthTokenFailure where
           let fbBad = do
                 o' <- o .? "fbBad"
                 code <- o' .? "code"
-                msg <- o .? "msg"
+                msg <- o' .? "msg"
                 pure $ FBLoginReturnBad code msg
               fbDenied = do
                 o' <- o .? "fbDenied"

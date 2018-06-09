@@ -1,6 +1,6 @@
 module LocalCooking.Global.Error where
 
-import LocalCooking.Semantics.Common (RegisterError (..))
+import LocalCooking.Semantics.Common (RegisterError (..), ConfirmEmailError (..))
 import Facebook.Types (FacebookLoginReturnError (..), FacebookUserId)
 
 import Prelude
@@ -133,6 +133,7 @@ data GlobalError
   | GlobalErrorRegister (Maybe RegisterError)
   | GlobalErrorRedirect RedirectError
   | GlobalErrorSecurity SecurityMessage
+  | GlobalErrorConfirmEmail (Maybe ConfirmEmailError)
 
 derive instance genericGlobalError :: Generic GlobalError
 
@@ -169,3 +170,8 @@ printGlobalError x = case x of
   GlobalErrorSecurity sec -> case sec of
     SecuritySaveFailed -> "Error - Securty save failed."
     SecuritySaveSuccess -> "Security details saved."
+  GlobalErrorConfirmEmail mEmail -> case mEmail of
+    Nothing -> "Email confirmed!"
+    Just email -> case email of
+      ConfirmEmailTokenNonexistent -> "Error - email token nonexistent"
+      ConfirmEmailUserNonexistent -> "Error - user nonexistent"

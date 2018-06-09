@@ -20,7 +20,7 @@ import LocalCooking.Common.User.Name (Name)
 import LocalCooking.Common.User.Password (HashedPassword)
 import LocalCooking.Common.User.Role (UserRole)
 
-import LocalCooking.Semantics.Common (SocialLoginForm, User, Register, Login, SocialLogin)
+import LocalCooking.Semantics.Common (SocialLoginForm, User, Register, RegisterError, Login, SocialLogin)
 import LocalCooking.Semantics.Mitch as Mitch
 import LocalCooking.Semantics.Chef as Chef
 
@@ -62,6 +62,7 @@ main = do
   jsonIsoAssert "LocalCooking.Semantics.Common.SocialLoginForm" (Proxy :: Proxy SocialLoginForm)
   jsonIsoAssert "LocalCooking.Semantics.Common.User" (Proxy :: Proxy User)
   jsonIsoAssert "LocalCooking.Semantics.Common.Register" (Proxy :: Proxy Register)
+  jsonIsoAssert "LocalCooking.Semantics.Common.RegisterError" (Proxy :: Proxy RegisterError)
   jsonIsoAssert "LocalCooking.Semantics.Common.Login" (Proxy :: Proxy Login)
   jsonIsoAssert "LocalCooking.Semantics.Common.SocialLogin" (Proxy :: Proxy SocialLogin)
   log "--------"

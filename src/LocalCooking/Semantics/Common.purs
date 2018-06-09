@@ -10,10 +10,13 @@ import Prelude
 import Data.DateTime (DateTime)
 import Data.DateTime.JSON (JSONDateTime (..))
 import Data.Maybe (Maybe)
+import Data.NonEmpty (NonEmpty (..))
 import Data.Generic (class Generic, gEq, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?))
+import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?), fail)
+import Control.Alternative ((<|>))
 import Text.Email.Validate (EmailAddress)
 import Test.QuickCheck (class Arbitrary, arbitrary)
+import Test.QuickCheck.Gen (oneOf)
 
 
 newtype SocialLoginForm = SocialLoginForm
@@ -135,6 +138,49 @@ instance decodeJsonRegister :: DecodeJson Register where
     reCaptcha <- o .? "reCaptcha"
     pure (Register {email,password,social,reCaptcha})
 
+
+data RegisterError
+  = RegisterDecodingError String
+  | RegisterReCaptchaFailure String
+  | RegisterEmailTaken
+
+derive instance genericRegisterError :: Generic RegisterError
+
+instance showRegisterError :: Show RegisterError where
+  show = gShow
+
+instance eqRegisterError :: Eq RegisterError where
+  eq = gEq
+
+instance arbitraryRegisterError :: Arbitrary RegisterError where
+  arbitrary = oneOf $ NonEmpty
+    ( pure RegisterEmailTaken
+    )
+    [ RegisterDecodingError <$> arbitrary
+    , RegisterReCaptchaFailure <$> arbitrary
+    ]
+
+instance encodeJsonRegisterError :: EncodeJson RegisterError where
+  encodeJson x = case x of
+    RegisterDecodingError e
+      -> "decodingError" := e ~> jsonEmptyObject
+    RegisterReCaptchaFailure e
+      -> "reCaptchaFailure" := e ~> jsonEmptyObject
+    RegisterEmailTaken -> encodeJson "emailTaken"
+
+instance decodeJsonRegisterError :: DecodeJson RegisterError where
+  decodeJson json = do
+    let obj = do
+          o <- decodeJson json
+          let decodingError = RegisterDecodingError <$> o .? "decodingError"
+              reCaptchaFailure = RegisterReCaptchaFailure <$> o .? "reCaptchaFailure"
+          decodingError <|> reCaptchaFailure
+        str = do
+          s <- decodeJson json
+          case unit of
+            _ | s == "emailTaken" -> pure RegisterEmailTaken
+              | otherwise -> fail "RegisterError"
+    obj <|> str
 
 
 

@@ -97,6 +97,53 @@ instance decodeJsonUser :: DecodeJson User where
     pure (User {id,created,email,social,emailConfirmed,roles})
 
 
+newtype SetUser = SetUser
+  { id :: StoredUserId
+  , email :: EmailAddress
+  , social :: SocialLoginForm
+  , oldPassword :: HashedPassword
+  , newPassword :: HashedPassword
+  }
+
+derive instance genericSetUser :: Generic SetUser
+
+instance arbitrarySetUser :: Arbitrary SetUser where
+  arbitrary = do
+    id <- arbitrary
+    email <- arbitrary
+    social <- arbitrary
+    oldPassword <- arbitrary
+    newPassword <- arbitrary
+    pure (SetUser {id,email,social,oldPassword,newPassword})
+
+instance eqSetUser :: Eq SetUser where
+  eq = gEq
+
+instance showSetUser :: Show SetUser where
+  show = gShow
+
+instance encodeJsonSetUser :: EncodeJson SetUser where
+  encodeJson (SetUser {id,email,social,oldPassword,newPassword})
+    =  "id" := id
+    ~> "email" := email
+    ~> "social" := social
+    ~> "oldPassword" := oldPassword
+    ~> "newPassword" := newPassword
+    ~> jsonEmptyObject
+
+instance decodeJsonSetUser :: DecodeJson SetUser where
+  decodeJson json = do
+    o <- decodeJson json
+    id <- o .? "id"
+    email <- o .? "email"
+    social <- o .? "social"
+    oldPassword <- o .? "oldPassword"
+    newPassword <- o .? "newPassword"
+    pure (SetUser {id,email,social,oldPassword,newPassword})
+
+
+
+
 -- TODO FIXME phone register / login
 newtype Register = Register
   { email     :: EmailAddress

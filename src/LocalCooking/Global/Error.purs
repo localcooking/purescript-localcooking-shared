@@ -52,15 +52,17 @@ data AuthTokenFailure
   | FBLoginReturnBadParse
   | FBLoginReturnNoUser FacebookUserId
   | FBLoginReturnError FacebookLoginReturnError
-  | AuthTokenLoginFailure
+  | AuthLoginFailure
+  | AuthTokenExpired
 
 derive instance genericAuthTokenFailure :: Generic AuthTokenFailure
 
 instance arbitraryAuthTokenFailure :: Arbitrary AuthTokenFailure where
   arbitrary = QC.oneOf $ NonEmpty
-    ( pure AuthTokenLoginFailure
+    ( pure AuthLoginFailure
     )
-    [ FBLoginReturnBad <$> arbitrary <*> arbitrary
+    [ pure AuthTokenExpired
+    , FBLoginReturnBad <$> arbitrary <*> arbitrary
     , FBLoginReturnDenied <$> arbitrary
     , pure FBLoginReturnBadParse
     , FBLoginReturnNoUser <$> arbitrary
@@ -75,7 +77,8 @@ instance eqAuthTokenFailure :: Eq AuthTokenFailure where
 
 instance encodeJsonAuthTokenFailure :: EncodeJson AuthTokenFailure where
   encodeJson x = case x of
-    AuthTokenLoginFailure -> encodeJson "loginFailure"
+    AuthLoginFailure -> encodeJson "loginFailure"
+    AuthTokenExpired -> encodeJson "tokenExpired"
     FBLoginReturnBadParse -> encodeJson "bad-parse"
     FBLoginReturnBad code msg
       -> "fbBad" :=
@@ -121,7 +124,8 @@ instance decodeJsonAuthTokenFailure :: DecodeJson AuthTokenFailure where
           s <- decodeJson json
           case unit of
             _ | s == "bad-parse" -> pure FBLoginReturnBadParse
-              | s == "loginFailure" -> pure AuthTokenLoginFailure
+              | s == "loginFailure" -> pure AuthLoginFailure
+              | s == "tokenExpired" -> pure AuthTokenExpired
               | otherwise -> fail "Not a AuthTokenFailure"
     obj <|> str
 
@@ -153,7 +157,8 @@ printGlobalError x = case x of
       FacebookLoginVerifyParseFailure a -> "Facebook parse failure: " <> a
       FacebookLoginUserDetailsParseFailure a -> "Facebook parse failure: " <> a
       FacebookLoginGetTokenError' a b c d -> "Facebook get token error: " <> a <> ", " <> b <> ", " <> show c <> ", " <> d
-    AuthTokenLoginFailure -> "Password incorrect, please try again."
+    AuthLoginFailure -> "Password incorrect, please try again."
+    AuthTokenExpired -> "Session expired, please login."
   GlobalErrorUserEmail userEmail -> case userEmail of
     UserEmailNoInitOut -> "Internal Error: userEmail resource failed"
     UserEmailNoAuth -> "Error: No authorization for email"

@@ -26,6 +26,9 @@ derive instance genericFacebookLoginState :: Generic FacebookLoginState
 instance eqFacebookLoginState :: Eq FacebookLoginState where
   eq = gEq
 
+instance showFacebookLoginState :: Show FacebookLoginState where
+  show = gShow
+
 instance arbitraryFacebookLoginState :: Arbitrary FacebookLoginState where
   arbitrary = do
     origin <- arbitrary
@@ -67,6 +70,9 @@ derive instance genericFacebookLoginUnsavedFormData :: Generic FacebookLoginUnsa
 
 instance showFacebookLoginUnsavedFormData :: Show FacebookLoginUnsavedFormData where
   show = gShow
+
+instance eqFacebookLoginUnsavedFormData :: Eq FacebookLoginUnsavedFormData where
+  eq = gEq
 
 instance arbitraryFacebookLoginUnsavedFormData :: Arbitrary FacebookLoginUnsavedFormData where
   arbitrary = oneOf $ NonEmpty

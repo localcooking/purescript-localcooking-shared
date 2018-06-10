@@ -26,6 +26,8 @@ import LocalCooking.Semantics.Chef as Chef
 
 import LocalCooking.Global.Error (AuthTokenFailure)
 
+import Facebook.State (FacebookLoginUnsavedFormData, FacebookLoginState)
+
 import Prelude
 import Data.Either (Either (..))
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson)
@@ -83,6 +85,9 @@ main = do
   jsonIsoAssert "LocalCooking.Semantics.Chef.Order" (Proxy :: Proxy Chef.Order)
   log "--------"
   jsonIsoAssert "LocalCooking.Global.Error.AuthTokenFailure" (Proxy :: Proxy AuthTokenFailure)
+  log "--------"
+  jsonIsoAssert "Facebook.State.FacebookLoginUnsavedFormData" (Proxy :: Proxy FacebookLoginUnsavedFormData)
+  jsonIsoAssert "Facebook.State.FacebookLoginState" (Proxy :: Proxy FacebookLoginState)
 
 
 jsonIsoAssert :: forall a

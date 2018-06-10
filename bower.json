@@ -19,7 +19,7 @@
     "purescript-quickcheck": "^4.6.2",
     "purescript-react": "^5.1.0",
     "purescript-js-date": "^4.0.0",
-    "purescript-uri-extra": "git@git.localcooking.com:private-tooling/purescript-uri-extra.git#8ad739fc06fe52e4e7c94fb1fd34f3c046036c47",
+    "purescript-uri-extra": "git@git.localcooking.com:private-tooling/purescript-uri-extra.git#2d33a08e8954e2859365f5c9183e8f4c7f52ff57",
     "purescript-email-validate": "git@git.localcooking.com:private-tooling/purescript-email-validate.git#0d31c1378916bedae77bdfff4e04f2e48e157495",
     "purescript-string-parsers": "^3.1.0",
     "purescript-dom": "^4.16.0",

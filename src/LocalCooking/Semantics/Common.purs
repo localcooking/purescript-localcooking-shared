@@ -52,7 +52,7 @@ newtype User = User
   { id             :: StoredUserId
   , created        :: DateTime
   , email          :: EmailAddress
-  , social         :: SocialLoginForm
+  , socialLogin    :: SocialLoginForm
   , emailConfirmed :: Boolean
   , roles          :: Array UserRole
   }
@@ -64,10 +64,10 @@ instance arbitraryUser :: Arbitrary User where
     id <- arbitrary
     JSONDateTime created <- arbitrary
     email <- arbitrary
-    social <- arbitrary
+    socialLogin <- arbitrary
     emailConfirmed <- arbitrary
     roles <- arbitrary
-    pure (User {id,created,email,social,emailConfirmed,roles})
+    pure (User {id,created,email,socialLogin,emailConfirmed,roles})
 
 instance eqUser :: Eq User where
   eq = gEq
@@ -76,11 +76,11 @@ instance showUser :: Show User where
   show = gShow
 
 instance encodeJsonUser :: EncodeJson User where
-  encodeJson (User {id,created,email,social,emailConfirmed,roles})
+  encodeJson (User {id,created,email,socialLogin,emailConfirmed,roles})
     =  "id" := id
     ~> "created" := JSONDateTime created
     ~> "email" := email
-    ~> "social" := social
+    ~> "socialLogin" := socialLogin
     ~> "emailConfirmed" := emailConfirmed
     ~> "roles" := roles
     ~> jsonEmptyObject
@@ -91,16 +91,16 @@ instance decodeJsonUser :: DecodeJson User where
     id <- o .? "id"
     JSONDateTime created <- o .? "created"
     email <- o .? "email"
-    social <- o .? "social"
+    socialLogin <- o .? "socialLogin"
     emailConfirmed <- o .? "emailConfirmed"
     roles <- o .? "roles"
-    pure (User {id,created,email,social,emailConfirmed,roles})
+    pure (User {id,created,email,socialLogin,emailConfirmed,roles})
 
 
 newtype SetUser = SetUser
   { id :: StoredUserId
   , email :: EmailAddress
-  , social :: SocialLoginForm
+  , socialLogin :: SocialLoginForm
   , oldPassword :: HashedPassword
   , newPassword :: HashedPassword
   }
@@ -111,10 +111,10 @@ instance arbitrarySetUser :: Arbitrary SetUser where
   arbitrary = do
     id <- arbitrary
     email <- arbitrary
-    social <- arbitrary
+    socialLogin <- arbitrary
     oldPassword <- arbitrary
     newPassword <- arbitrary
-    pure (SetUser {id,email,social,oldPassword,newPassword})
+    pure (SetUser {id,email,socialLogin,oldPassword,newPassword})
 
 instance eqSetUser :: Eq SetUser where
   eq = gEq
@@ -123,10 +123,10 @@ instance showSetUser :: Show SetUser where
   show = gShow
 
 instance encodeJsonSetUser :: EncodeJson SetUser where
-  encodeJson (SetUser {id,email,social,oldPassword,newPassword})
+  encodeJson (SetUser {id,email,socialLogin,oldPassword,newPassword})
     =  "id" := id
     ~> "email" := email
-    ~> "social" := social
+    ~> "socialLogin" := socialLogin
     ~> "oldPassword" := oldPassword
     ~> "newPassword" := newPassword
     ~> jsonEmptyObject
@@ -136,10 +136,10 @@ instance decodeJsonSetUser :: DecodeJson SetUser where
     o <- decodeJson json
     id <- o .? "id"
     email <- o .? "email"
-    social <- o .? "social"
+    socialLogin <- o .? "socialLogin"
     oldPassword <- o .? "oldPassword"
     newPassword <- o .? "newPassword"
-    pure (SetUser {id,email,social,oldPassword,newPassword})
+    pure (SetUser {id,email,socialLogin,oldPassword,newPassword})
 
 
 

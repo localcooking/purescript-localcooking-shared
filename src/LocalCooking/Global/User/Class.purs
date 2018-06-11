@@ -1,7 +1,5 @@
 module LocalCooking.Global.User.Class where
 
--- import Text.Email.Validate (EmailAddress)
--- import LocalCooking.Common.User.Role (UserRole)
 import LocalCooking.Semantics.Common (User)
 
 
@@ -9,3 +7,4 @@ import LocalCooking.Semantics.Common (User)
 -- | additional fields might include customer details, chef details, etc.
 class UserDetails userDetails where
   getUser :: userDetails -> User
+  setUser :: User -> userDetails -> userDetails

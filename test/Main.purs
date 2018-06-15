@@ -23,6 +23,7 @@ import LocalCooking.Common.User.Role (UserRole)
 import LocalCooking.Semantics.Common (SocialLoginForm, User, SetUser, Register, RegisterError, Login, SocialLogin)
 import LocalCooking.Semantics.Mitch as Mitch
 import LocalCooking.Semantics.Chef as Chef
+import LocalCooking.Semantics.Admin as Admin
 
 import LocalCooking.Global.Error (AuthTokenFailure)
 
@@ -83,6 +84,9 @@ main = do
   jsonIsoAssert "LocalCooking.Semantics.Chef.MenuSettings" (Proxy :: Proxy Chef.MenuSettings)
   jsonIsoAssert "LocalCooking.Semantics.Chef.ChefSettings" (Proxy :: Proxy Chef.ChefSettings)
   jsonIsoAssert "LocalCooking.Semantics.Chef.Order" (Proxy :: Proxy Chef.Order)
+  log "--------"
+  jsonIsoAssert "LocalCooking.Semantics.Admin.SetUser" (Proxy :: Proxy Admin.SetUser)
+  jsonIsoAssert "LocalCooking.Semantics.Admin.NewUser" (Proxy :: Proxy Admin.NewUser)
   log "--------"
   jsonIsoAssert "LocalCooking.Global.Error.AuthTokenFailure" (Proxy :: Proxy AuthTokenFailure)
   log "--------"

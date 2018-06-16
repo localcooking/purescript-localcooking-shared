@@ -38,8 +38,8 @@ instance decodeJsonName :: DecodeJson Name where
       Nothing -> fail "Empty Name"
       Just {head,tail} -> pure $ Name $ NonEmpty head tail
 
-name :: String -> Maybe Name
-name x =
+mkName :: String -> Maybe Name
+mkName x =
   case Array.uncons (String.words x) of
     Nothing -> Nothing
     Just {head,tail} -> Just $ Name $ NonEmpty head tail

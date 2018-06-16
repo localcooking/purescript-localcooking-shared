@@ -17,8 +17,6 @@ newtype Name = Name (NonEmpty Array String)
 derive instance genericName :: Generic Name
 derive newtype instance eqName :: Eq Name
 derive newtype instance ordName :: Ord Name
--- derive newtype instance encodeJsonName :: EncodeJson Name
--- derive newtype instance decodeJsonName :: DecodeJson Name
 
 instance arbitraryName :: Arbitrary Name where
   arbitrary = do

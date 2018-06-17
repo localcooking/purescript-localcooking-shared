@@ -4,6 +4,9 @@ import Prelude
 import Data.NonEmpty (NonEmpty (..))
 import Data.Generic (class Generic, gEq, gCompare, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail, (:=), (~>), jsonEmptyObject, (.?))
+import Control.Alternative ((<|>))
+import Text.Parsing.StringParser (Parser)
+import Text.Parsing.StringParser.String (string)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 import Test.QuickCheck.Gen (oneOf)
 
@@ -118,8 +121,112 @@ instance arbitraryUSAState :: Arbitrary USAState where
     , pure WY
     ]
 
-allStates :: Array USAState
-allStates =
+usaStateParser :: Parser USAState
+usaStateParser = do
+  let al = AL <$ string "AL"   
+      ak = AK <$ string "AK"   
+      az = AZ <$ string "AZ"   
+      ar = AR <$ string "AR"   
+      ca = CA <$ string "CA"   
+      co = CO <$ string "CO"   
+      ct = CT <$ string "CT"   
+      de = DE <$ string "DE"   
+      fl = FL <$ string "FL"   
+      ga = GA <$ string "GA"   
+      hi = HI <$ string "HI"   
+      id = ID <$ string "ID"   
+      il = IL <$ string "IL"   
+      in' = IN <$ string "IN"   
+      ia = IA <$ string "IA"   
+      ks = KS <$ string "KS"   
+      ky = KY <$ string "KY"   
+      la = LA <$ string "LA"   
+      me = ME <$ string "ME"   
+      md = MD <$ string "MD"   
+      ma = MA <$ string "MA"   
+      mi = MI <$ string "MI"   
+      mn = MN <$ string "MN"   
+      ms = MS <$ string "MS"   
+      mo = MO <$ string "MO"   
+      mt = MT <$ string "MT"   
+      ne = NE <$ string "NE"   
+      nv = NV <$ string "NV"   
+      nh = NH <$ string "NH"   
+      nj = NJ <$ string "NJ"   
+      nm = NM <$ string "NM"   
+      ny = NY <$ string "NY"   
+      nc = NC <$ string "NC"   
+      nd = ND <$ string "ND"   
+      oh = OH <$ string "OH"   
+      ok = OK <$ string "OK"   
+      or = OR <$ string "OR"   
+      pa = PA <$ string "PA"   
+      ri = RI <$ string "RI"   
+      sc = SC <$ string "SC"   
+      sd = SD <$ string "SD"   
+      tn = TN <$ string "TN"   
+      tx = TX <$ string "TX"   
+      ut = UT <$ string "UT"   
+      vt = VT <$ string "VT"   
+      va = VA <$ string "VA"   
+      wa = WA <$ string "WA"   
+      wv = WV <$ string "WV"   
+      wi = WI <$ string "WI"   
+      wy = WY <$ string "WY"   
+  al
+    <|> ak
+    <|> az
+    <|> ar
+    <|> ca
+    <|> co
+    <|> ct
+    <|> de
+    <|> fl
+    <|> ga
+    <|> hi
+    <|> id
+    <|> il
+    <|> in'
+    <|> ia
+    <|> ks
+    <|> ky
+    <|> la
+    <|> me
+    <|> md
+    <|> ma
+    <|> mi
+    <|> mn
+    <|> ms
+    <|> mo
+    <|> mt
+    <|> ne
+    <|> nv
+    <|> nh
+    <|> nj
+    <|> nm
+    <|> ny
+    <|> nc
+    <|> nd
+    <|> oh
+    <|> ok
+    <|> or
+    <|> pa
+    <|> ri
+    <|> sc
+    <|> sd
+    <|> tn
+    <|> tx
+    <|> ut
+    <|> vt
+    <|> va
+    <|> wa
+    <|> wv
+    <|> wi
+    <|> wy
+  
+
+allUSAStates :: Array USAState
+allUSAStates =
   [ AL
   , AK
   , AZ

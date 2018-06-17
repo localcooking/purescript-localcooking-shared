@@ -286,10 +286,7 @@ instance ordUSAState :: Ord USAState where
   compare = gCompare
 
 instance showUSAState :: Show USAState where
-  show = gShow
-
-instance encodeJsonUSAState :: EncodeJson USAState where
-  encodeJson x = encodeJson $ case x of
+  show x = case x of
     AL -> "AL"
     AK -> "AK"
     AZ -> "AZ"
@@ -340,6 +337,10 @@ instance encodeJsonUSAState :: EncodeJson USAState where
     WV -> "WV"
     WI -> "WI"
     WY -> "WY"
+
+
+instance encodeJsonUSAState :: EncodeJson USAState where
+  encodeJson = encodeJson <<< show
 
 instance decodeJsonUSAState :: DecodeJson USAState where
   decodeJson json = do

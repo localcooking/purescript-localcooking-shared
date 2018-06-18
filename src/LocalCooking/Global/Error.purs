@@ -35,6 +35,16 @@ instance showRedirectError :: Show RedirectError where
   show = gShow
 
 
+data CustomerError
+  = CustomerSaveFailed
+  | CustomerSaveSuccess
+
+derive instance genericCustomerError :: Generic CustomerError
+
+instance showCustomerError :: Show CustomerError where
+  show = gShow
+
+
 data SecurityMessage
   = SecuritySaveFailed
   | SecuritySaveSuccess
@@ -138,6 +148,7 @@ data GlobalError
   | GlobalErrorRedirect RedirectError
   | GlobalErrorSecurity SecurityMessage
   | GlobalErrorConfirmEmail ConfirmEmailError
+  | GlobalErrorCustomer CustomerError
 
 derive instance genericGlobalError :: Generic GlobalError
 
@@ -179,3 +190,6 @@ printGlobalError x = case x of
     ConfirmEmailTokenNonexistent -> "Error - email token nonexistent"
     ConfirmEmailUserNonexistent -> "Error - user nonexistent"
     ConfirmEmailOk -> "Email confirmed!"
+  GlobalErrorCustomer cust -> case cust of
+    CustomerSaveFailed -> "Internal error - couldn't save customer details"
+    CustomerSaveSuccess -> "Customer details saved"

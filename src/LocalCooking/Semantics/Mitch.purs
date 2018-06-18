@@ -554,8 +554,6 @@ instance decodeJsonOrder :: DecodeJson Order where
 newtype Customer = Customer
   { name :: Name
   , address :: USAAddress
-  , diets :: Array Diet
-  , allergies :: Array IngredientName
   }
 
 derive instance genericCustomer :: Generic Customer
@@ -570,16 +568,12 @@ instance arbitraryCustomer :: Arbitrary Customer where
   arbitrary = do
     name <- arbitrary
     address <- arbitrary
-    diets <- arbitrary
-    allergies <- arbitrary
-    pure (Customer {name,address,diets,allergies})
+    pure (Customer {name,address})
 
 instance encodeJsonCustomer :: EncodeJson Customer where
-  encodeJson (Customer {name,address,diets,allergies})
+  encodeJson (Customer {name,address})
     =  "name" := name
     ~> "address" := address
-    ~> "diets" := diets
-    ~> "allergies" := allergies
     ~> jsonEmptyObject
 
 instance decodeJsonCustomer :: DecodeJson Customer where
@@ -587,9 +581,25 @@ instance decodeJsonCustomer :: DecodeJson Customer where
     o <- decodeJson json
     name <- o .? "name"
     address <- o .? "address"
-    diets <- o .? "diets"
-    allergies <- o .? "allergies"
-    pure (Customer {name,address,diets,allergies})
+    pure (Customer {name,address})
+
+
+newtype Diets = Diets (Array Diet)
+derive instance genericDiets :: Generic Diets
+derive newtype instance eqDiets :: Eq Diets
+derive newtype instance showDiets :: Show Diets
+derive newtype instance arbitraryDiets :: Arbitrary Diets
+derive newtype instance encodeJsonDiets :: EncodeJson Diets
+derive newtype instance decodeJsonDiets :: DecodeJson Diets
+
+newtype Allergies = Allergies (Array IngredientName)
+derive instance genericAllergies :: Generic Allergies
+derive newtype instance eqAllergies :: Eq Allergies
+derive newtype instance showAllergies :: Show Allergies
+derive newtype instance arbitraryAllergies :: Arbitrary Allergies
+derive newtype instance encodeJsonAllergies :: EncodeJson Allergies
+derive newtype instance decodeJsonAllergies :: DecodeJson Allergies
+
 
 
 newtype CartEntry = CartEntry

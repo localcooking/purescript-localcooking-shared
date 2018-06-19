@@ -5,6 +5,7 @@ import LocalCooking.Common.Diet (Diet)
 import Prelude
 import Data.Generic (class Generic, gShow, gEq)
 import Data.Argonaut (class EncodeJson, class DecodeJson, (~>), (:=), decodeJson, (.?), jsonEmptyObject)
+import Data.String.Yarn (class IsString)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
 
@@ -16,6 +17,7 @@ derive newtype instance eqIngredientName :: Eq IngredientName
 derive newtype instance showIngredientName :: Show IngredientName
 derive newtype instance encodeJsonIngredientName :: EncodeJson IngredientName
 derive newtype instance decodeJsonIngredientName :: DecodeJson IngredientName
+derive newtype instance isStringIngredientName :: IsString IngredientName
 
 
 newtype Ingredient = Ingredient

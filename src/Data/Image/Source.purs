@@ -6,7 +6,7 @@ import Data.Argonaut (class EncodeJson, class DecodeJson)
 import Test.QuickCheck (class Arbitrary)
 
 
-newtype ImageSource = ImageSource String
+newtype ImageSource = ImageSource Int
 
 derive instance genericImageSource :: Generic ImageSource
 derive newtype instance arbitraryImageSource :: Arbitrary ImageSource

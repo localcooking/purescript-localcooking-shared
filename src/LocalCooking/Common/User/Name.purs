@@ -7,6 +7,7 @@ import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson
 import Data.NonEmpty (NonEmpty (..))
 import Data.Array (uncons) as Array
 import Data.String.Yarn (words, unwords) as String
+import Data.String.Yarn (class IsString)
 import Data.String.NonEmptyAlpha (NonEmptyAlphaString (..))
 import Test.QuickCheck (class Arbitrary, arbitrary)
 import Test.QuickCheck.Gen (arrayOf1)

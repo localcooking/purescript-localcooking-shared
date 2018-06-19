@@ -3,6 +3,7 @@ module LocalCooking.Common.Culture where
 import Prelude
 import Data.Generic (class Generic)
 import Data.Argonaut (class EncodeJson, class DecodeJson)
+import Data.String.Yarn (class IsString)
 import Test.QuickCheck (class Arbitrary)
 
 
@@ -15,3 +16,4 @@ derive newtype instance ordCulture :: Ord Culture
 derive newtype instance showCulture :: Show Culture
 derive newtype instance encodeJsonCulture :: EncodeJson Culture
 derive newtype instance decodeJsonCulture :: DecodeJson Culture
+derive newtype instance isStringCulture :: IsString Culture

@@ -6,6 +6,7 @@ import Prelude
 import Data.Generic (class Generic)
 import Data.Argonaut (class EncodeJson, class DecodeJson)
 import Data.Newtype (class Newtype)
+import Data.String.Yarn (class IsString)
 import Test.QuickCheck (class Arbitrary)
 
 
@@ -19,3 +20,4 @@ derive newtype instance ordMealTag :: Ord MealTag
 derive newtype instance showMealTag :: Show MealTag
 derive newtype instance encodeJsonMealTag :: EncodeJson MealTag
 derive newtype instance decodeJsonMealTag :: DecodeJson MealTag
+derive newtype instance isStringMealTag :: IsString MealTag

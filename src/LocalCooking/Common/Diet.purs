@@ -3,6 +3,7 @@ module LocalCooking.Common.Diet where
 import Prelude
 import Data.Generic (class Generic)
 import Data.Argonaut (class EncodeJson, class DecodeJson)
+import Data.String.Yarn (class IsString)
 import Test.QuickCheck (class Arbitrary)
 
 
@@ -15,3 +16,4 @@ derive newtype instance ordDiet :: Ord Diet
 derive newtype instance showDiet :: Show Diet
 derive newtype instance encodeJsonDiet :: EncodeJson Diet
 derive newtype instance decodeJsonDiet :: DecodeJson Diet
+derive newtype instance isStringDiet :: IsString Diet

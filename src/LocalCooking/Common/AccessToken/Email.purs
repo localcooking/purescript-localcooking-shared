@@ -6,6 +6,7 @@ import Prelude
 import Data.Generic (class Generic)
 import Data.Argonaut (class EncodeJson, class DecodeJson)
 import Data.Newtype (class Newtype)
+import Data.String.Yarn (class IsString)
 import Test.QuickCheck (class Arbitrary)
 
 
@@ -18,3 +19,4 @@ derive newtype instance eqEmailToken :: Eq EmailToken
 derive newtype instance showEmailToken :: Show EmailToken
 derive newtype instance encodeJsonEmailToken :: EncodeJson EmailToken
 derive newtype instance decodeJsonEmailToken :: DecodeJson EmailToken
+derive newtype instance isStringEmailToken :: IsString EmailToken

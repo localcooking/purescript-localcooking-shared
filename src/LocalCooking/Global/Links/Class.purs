@@ -3,10 +3,14 @@ module LocalCooking.Global.Links.Class where
 import Prelude
 import Data.URI.Location
   ( class ToLocation, class FromLocation
-  , printLocation, parseLocation, toLocation, fromLocation)
+  , printLocation, parseLocation, toLocation, fromLocation
+  , Location (..), fromURI)
+import Data.URI.URI as URI
 import Data.URI.Location as Location
+import Data.URI.Query (Query (..))
 import Data.Maybe (Maybe (..))
 import Data.Either (Either (..))
+import Data.StrMap as StrMap
 import Data.Foreign (toForeign, unsafeFromForeign, isNull)
 import Data.Argonaut (encodeJson, decodeJson)
 import Type.Proxy (Proxy (..))
@@ -15,13 +19,16 @@ import Text.Parsing.StringParser.String (string, char, eof)
 import Text.Parsing.StringParser.Combinators (optionMaybe)
 import Control.Alternative ((<|>))
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log)
+import Control.Monad.Eff.Console (CONSOLE, log, warn)
 import Control.Monad.Eff.Exception (EXCEPTION, throw)
 import Control.Monad.Eff.Uncurried (mkEffFn1, runEffFn2)
 import Control.Monad.Eff.Unsafe (unsafeCoerceEff)
 import DOM (DOM)
+import DOM.HTML (window)
 import DOM.HTML.History (DocumentTitle (..), pushState, replaceState, URL (..))
+import DOM.HTML.Window (location, history)
 import DOM.HTML.Window.Extra (onPopStateImpl)
+import DOM.HTML.Location (href)
 import DOM.HTML.Types (History, HISTORY, Window)
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -43,6 +50,7 @@ class ( Eq siteLinks
   registerLink :: siteLinks
   userDetailsLink :: Maybe userDetailsLinks -> siteLinks
   getUserDetailsLink :: siteLinks -> Maybe (Maybe userDetailsLinks)
+  emailConfirmLink :: siteLinks
   toDocumentTitle :: siteLinks -> String -- ^ The prefix, i.e. `Register - `
   subsidiaryTitle :: Proxy siteLinks -> String -- ^ The suffix, i.e. ` Chefs`
 
@@ -136,3 +144,54 @@ onPopState go w =
         Right (x :: siteLinks) -> go x
   where
     onPopState' f = runEffFn2 onPopStateImpl (mkEffFn1 f) w
+
+
+
+initSiteLinks :: forall eff siteLinks userDetailsLinks
+               . LocalCookingSiteLinks siteLinks userDetailsLinks
+              => ToLocation siteLinks
+              => FromLocation siteLinks
+              => Eq siteLinks
+              => Show siteLinks
+              => Eff ( console :: CONSOLE
+                     , dom     :: DOM
+                     , history :: HISTORY
+                     | eff) siteLinks
+initSiteLinks = do
+  w <- window
+  l <- location w
+  h <- history w
+  p <- href l
+  let rootLink' :: siteLinks
+      rootLink' = rootLink
+  case URI.parse p of
+    Left e -> do
+      warn $ "Href parsing error: " <> show e
+      replaceState' rootLink' h
+      pure rootLink'
+    Right uri -> case fromURI uri of
+      Nothing -> do
+        warn $ "URI can't be a location: " <> show uri
+        replaceState' rootLink' h
+        pure rootLink'
+      Just {location: location@(Location _ mQuery _)} -> case fromLocation location of
+        Left e -> do
+          warn $ "Location can't be a SiteLinks: " <> e <> ", " <> printLocation location
+          replaceState' rootLink' h
+          pure rootLink'
+        Right (x :: siteLinks) -> do
+          -- FIXME only adjust for authToken when it's parsable? Why?
+          case mQuery of
+            Nothing -> pure x
+            Just (Query qs) -> do
+              case
+                    StrMap.lookup "authToken" (StrMap.fromFoldable qs)
+                <|> StrMap.lookup "formData" (StrMap.fromFoldable qs)
+                <|> StrMap.lookup "emailToken" (StrMap.fromFoldable qs)
+                of
+                Nothing -> pure x
+                Just _ 
+                  | x == emailConfirmLink -> do
+                    replaceState' rootLink' h
+                    pure rootLink'
+                  | otherwise -> pure x

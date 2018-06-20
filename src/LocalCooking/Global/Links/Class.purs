@@ -190,8 +190,12 @@ initSiteLinks = do
                 <|> StrMap.lookup "emailToken" (StrMap.fromFoldable qs)
                 of
                 Nothing -> pure x
-                Just _ 
+                Just _
                   | x == emailConfirmLink -> do
+                    warn "Redirecting to root due to email confirm token"
                     replaceState' rootLink' h
                     pure rootLink'
-                  | otherwise -> pure x
+                  | otherwise -> do
+                    warn $ "Redirecting to parsed value " <> show x <> ", due to presence of query parameters"
+                    replaceState' x h
+                    pure x

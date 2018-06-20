@@ -1,4 +1,4 @@
-module LocalCooking.Semantics.Farm where
+module LocalCooking.Semantics.Restaurant where
 
 import Prelude
 import Data.Maybe (Maybe)
@@ -9,4 +9,3 @@ import Control.Alternative ((<|>))
 import Text.Email.Validate (EmailAddress)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 import Test.QuickCheck.Gen (oneOf)
-

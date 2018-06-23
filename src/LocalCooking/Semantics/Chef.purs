@@ -4,7 +4,7 @@ import LocalCooking.Database.Schema (StoredMealId, StoredOrderId)
 import LocalCooking.Common.User.Name (Name)
 import LocalCooking.Common.Tag.Chef (ChefTag)
 import LocalCooking.Common.Tag.Meal (MealTag)
-import LocalCooking.Common.Ingredient (IngredientName)
+import LocalCooking.Common.Tag.Ingredient (IngredientTag)
 import LocalCooking.Common.Order (OrderProgress)
 
 import Prelude
@@ -127,7 +127,7 @@ newtype MealSettings = MealSettings
   , description  :: MarkdownText
   , instructions :: MarkdownText
   , images       :: Array ImageSource
-  , ingredients  :: Array IngredientName
+  , ingredients  :: Array IngredientTag
   , tags         :: Array MealTag
   , price        :: Price
   }

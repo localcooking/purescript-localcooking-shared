@@ -4,9 +4,10 @@ import LocalCooking.Database.Schema (StoredMealId, StoredReviewId)
 import LocalCooking.Common.User.Name (Name)
 import LocalCooking.Common.Tag.Chef (ChefTag)
 import LocalCooking.Common.Tag.Meal (MealTag)
-import LocalCooking.Common.Ingredient (Ingredient, IngredientName)
+import LocalCooking.Common.Tag.Ingredient (IngredientTag)
+import LocalCooking.Common.Tag.Diet (DietTag)
+import LocalCooking.Common.Ingredient (Ingredient)
 import LocalCooking.Common.Order (OrderProgress)
-import LocalCooking.Common.Diet (Diet)
 import LocalCooking.Common.Rating (Rating)
 
 import Prelude
@@ -223,7 +224,7 @@ newtype MealSynopsis = MealSynopsis
   , rating    :: Rating
   , orders    :: Int
   , tags      :: Array MealTag
-  , diets     :: Array Diet
+  , diets     :: Array DietTag
   , price     :: Price
   }
 
@@ -283,7 +284,7 @@ newtype Meal = Meal
   , instructions :: MarkdownText
   , images       :: Array ImageSource
   , ingredients  :: Array Ingredient
-  , diets        :: Array Diet
+  , diets        :: Array DietTag
   , tags         :: Array MealTag
   , orders       :: Int
   , rating       :: Rating
@@ -444,16 +445,16 @@ instance decodeJsonChefSynopsis :: DecodeJson ChefSynopsis where
 
 
 newtype Chef = Chef
-  { name :: Name
-  , permalink :: Permalink
-  , images :: Array ImageSource
-  , bio :: MarkdownText
-  , rating :: Rating
-  , reviews :: Array ReviewSynopsis
+  { name         :: Name
+  , permalink    :: Permalink
+  , images       :: Array ImageSource
+  , bio          :: MarkdownText
+  , rating       :: Rating
+  , reviews      :: Array ReviewSynopsis
   , activeOrders :: Int
-  , totalOrders :: Int
-  , tags :: Array ChefTag
-  , menus :: Array MenuSynopsis
+  , totalOrders  :: Int
+  , tags         :: Array ChefTag
+  , menus        :: Array MenuSynopsis
   }
 
 derive instance genericChef :: Generic Chef
@@ -552,7 +553,7 @@ instance decodeJsonOrder :: DecodeJson Order where
 
 
 newtype Customer = Customer
-  { name :: Name
+  { name    :: Name
   , address :: USAAddress
   }
 
@@ -584,7 +585,7 @@ instance decodeJsonCustomer :: DecodeJson Customer where
     pure (Customer {name,address})
 
 
-newtype Diets = Diets (Array Diet)
+newtype Diets = Diets (Array DietTag)
 derive instance genericDiets :: Generic Diets
 derive newtype instance eqDiets :: Eq Diets
 derive newtype instance showDiets :: Show Diets
@@ -592,7 +593,7 @@ derive newtype instance arbitraryDiets :: Arbitrary Diets
 derive newtype instance encodeJsonDiets :: EncodeJson Diets
 derive newtype instance decodeJsonDiets :: DecodeJson Diets
 
-newtype Allergies = Allergies (Array IngredientName)
+newtype Allergies = Allergies (Array IngredientTag)
 derive instance genericAllergies :: Generic Allergies
 derive newtype instance eqAllergies :: Eq Allergies
 derive newtype instance showAllergies :: Show Allergies
@@ -603,9 +604,9 @@ derive newtype instance decodeJsonAllergies :: DecodeJson Allergies
 
 
 newtype CartEntry = CartEntry
-  { meal :: StoredMealId
+  { meal   :: StoredMealId
   , volume :: Int
-  , added :: DateTime
+  , added  :: DateTime
   }
 
 derive instance genericCartEntry :: Generic CartEntry

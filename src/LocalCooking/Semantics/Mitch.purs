@@ -552,37 +552,37 @@ instance decodeJsonOrder :: DecodeJson Order where
 
 
 
-newtype Customer = Customer
+newtype GetSetCustomer = GetSetCustomer
   { name    :: Name
   , address :: USAAddress
   }
 
-derive instance genericCustomer :: Generic Customer
+derive instance genericGetSetCustomer :: Generic GetSetCustomer
 
-instance eqCustomer :: Eq Customer where
+instance eqGetSetCustomer :: Eq GetSetCustomer where
   eq = gEq
 
-instance showCustomer :: Show Customer where
+instance showGetSetCustomer :: Show GetSetCustomer where
   show = gShow
 
-instance arbitraryCustomer :: Arbitrary Customer where
+instance arbitraryGetSetCustomer :: Arbitrary GetSetCustomer where
   arbitrary = do
     name <- arbitrary
     address <- arbitrary
-    pure (Customer {name,address})
+    pure (GetSetCustomer {name,address})
 
-instance encodeJsonCustomer :: EncodeJson Customer where
-  encodeJson (Customer {name,address})
+instance encodeJsonGetSetCustomer :: EncodeJson GetSetCustomer where
+  encodeJson (GetSetCustomer {name,address})
     =  "name" := name
     ~> "address" := address
     ~> jsonEmptyObject
 
-instance decodeJsonCustomer :: DecodeJson Customer where
+instance decodeJsonGetSetCustomer :: DecodeJson GetSetCustomer where
   decodeJson json = do
     o <- decodeJson json
     name <- o .? "name"
     address <- o .? "address"
-    pure (Customer {name,address})
+    pure (GetSetCustomer {name,address})
 
 
 newtype Diets = Diets (Array DietTag)

@@ -75,3 +75,13 @@ derive newtype instance ordStoredCustomerId :: Ord StoredCustomerId
 derive newtype instance showStoredCustomerId :: Show StoredCustomerId
 derive newtype instance encodeJsonStoredCustomerId :: EncodeJson StoredCustomerId
 derive newtype instance decodeJsonStoredCustomerId :: DecodeJson StoredCustomerId
+
+newtype RecordSubmissionApprovalId = RecordSubmissionApprovalId Int
+
+derive instance genericRecordSubmissionApprovalId :: Generic RecordSubmissionApprovalId
+derive newtype instance arbitraryRecordSubmissionApprovalId :: Arbitrary RecordSubmissionApprovalId
+derive newtype instance eqRecordSubmissionApprovalId :: Eq RecordSubmissionApprovalId
+derive newtype instance ordRecordSubmissionApprovalId :: Ord RecordSubmissionApprovalId
+derive newtype instance showRecordSubmissionApprovalId :: Show RecordSubmissionApprovalId
+derive newtype instance encodeJsonRecordSubmissionApprovalId :: EncodeJson RecordSubmissionApprovalId
+derive newtype instance decodeJsonRecordSubmissionApprovalId :: DecodeJson RecordSubmissionApprovalId

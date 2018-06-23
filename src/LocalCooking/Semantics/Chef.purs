@@ -22,7 +22,7 @@ import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
 
-newtype ChefSettings = ChefSettings
+newtype GetSetChef = GetSetChef
   { name      :: Name
   , permalink :: Permalink
   , images    :: Array ImageSource
@@ -31,15 +31,15 @@ newtype ChefSettings = ChefSettings
   , tags      :: Array ChefTag
   }
 
-derive instance genericChefSettings :: Generic ChefSettings
+derive instance genericGetSetChef :: Generic GetSetChef
 
-instance eqChefSettings :: Eq ChefSettings where
+instance eqGetSetChef :: Eq GetSetChef where
   eq = gEq
 
-instance showChefSettings :: Show ChefSettings where
+instance showGetSetChef :: Show GetSetChef where
   show = gShow
 
-instance arbitraryChefSettings :: Arbitrary ChefSettings where
+instance arbitraryGetSetChef :: Arbitrary GetSetChef where
   arbitrary = do
     name <- arbitrary
     permalink <- arbitrary
@@ -47,10 +47,10 @@ instance arbitraryChefSettings :: Arbitrary ChefSettings where
     avatar <- arbitrary
     bio <- arbitrary
     tags <- arbitrary
-    pure (ChefSettings {name,permalink,images,avatar,bio,tags})
+    pure (GetSetChef {name,permalink,images,avatar,bio,tags})
 
-instance encodeJsonChefSettings :: EncodeJson ChefSettings where
-  encodeJson (ChefSettings {name,permalink,images,avatar,bio,tags})
+instance encodeJsonGetSetChef :: EncodeJson GetSetChef where
+  encodeJson (GetSetChef {name,permalink,images,avatar,bio,tags})
     =  "name" := name
     ~> "permalink" := permalink
     ~> "images" := images
@@ -59,7 +59,7 @@ instance encodeJsonChefSettings :: EncodeJson ChefSettings where
     ~> "tags" := tags
     ~> jsonEmptyObject
 
-instance decodeJsonChefSettings :: DecodeJson ChefSettings where
+instance decodeJsonGetSetChef :: DecodeJson GetSetChef where
   decodeJson json = do
     o <- decodeJson json
     name <- o .? "name"
@@ -68,7 +68,7 @@ instance decodeJsonChefSettings :: DecodeJson ChefSettings where
     avatar <- o .? "avatar"
     bio <- o .? "bio"
     tags <- o .? "tags"
-    pure (ChefSettings {name,permalink,images,avatar,bio,tags})
+    pure (GetSetChef {name,permalink,images,avatar,bio,tags})
 
 
 newtype MenuSettings = MenuSettings

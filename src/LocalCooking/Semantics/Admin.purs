@@ -2,6 +2,7 @@ module LocalCooking.Semantics.Admin where
 
 import LocalCooking.Semantics.Common (User)
 import LocalCooking.Semantics.ContentRecord (ContentRecordVariant)
+import LocalCooking.Database.Schema (StoredEditorId)
 import LocalCooking.Common.User.Password (HashedPassword)
 
 import Prelude
@@ -103,3 +104,41 @@ instance decodeJsonNewUser :: DecodeJson NewUser where
     email <- o .? "email"
     password <- o .? "password"
     pure (NewUser {email,password})
+
+
+
+newtype GetSetSubmissionPolicy = GetSetSubmissionPolicy
+  { variant :: ContentRecordVariant
+  , additional :: Int
+  , assigned :: Array StoredEditorId
+  }
+
+derive instance genericGetSetSubmissionPolicy :: Generic GetSetSubmissionPolicy
+
+instance arbitraryGetSetSubmissionPolicy :: Arbitrary GetSetSubmissionPolicy where
+  arbitrary = do
+    variant <- arbitrary
+    additional <- arbitrary
+    assigned <- arbitrary
+    pure (GetSetSubmissionPolicy {variant,additional,assigned})
+
+instance eqGetSetSubmissionPolicy :: Eq GetSetSubmissionPolicy where
+  eq = gEq
+
+instance showGetSetSubmissionPolicy :: Show GetSetSubmissionPolicy where
+  show = gShow
+
+instance encodeJsonGetSetSubmissionPolicy :: EncodeJson GetSetSubmissionPolicy where
+  encodeJson (GetSetSubmissionPolicy {variant,additional,assigned})
+    =  "variant" := variant
+    ~> "additional" := additional
+    ~> "assigned" := assigned
+    ~> jsonEmptyObject
+
+instance decodeJsonGetSetSubmissionPolicy :: DecodeJson GetSetSubmissionPolicy where
+  decodeJson json = do
+    o <- decodeJson json
+    variant <- o .? "variant"
+    additional <- o .? "additional"
+    assigned <- o .? "assigned"
+    pure (GetSetSubmissionPolicy {variant,additional,assigned})

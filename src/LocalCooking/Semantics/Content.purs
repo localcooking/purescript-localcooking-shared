@@ -1,8 +1,8 @@
 module LocalCooking.Semantics.Content where
 
-import LocalCooking.Common.User.Name (Name)
-import LocalCooking.Common.ContentRecord (ContentRecordVariant)
+import LocalCooking.Semantics.ContentRecord (ContentRecordVariant)
 import LocalCooking.Database.Schema (RecordSubmissionApprovalId)
+import LocalCooking.Common.User.Name (Name)
 
 import Prelude
 import Data.Maybe (Maybe)
@@ -50,3 +50,34 @@ instance decodeJsonGetEditor :: DecodeJson GetEditor where
     assignedRecords <- o .? "assignedRecords"
     approvedSubmissions <- o .? "approvedSubmissions"
     pure (GetEditor {name,assignedRecords,approvedSubmissions})
+
+
+
+
+newtype SetEditor = SetEditor
+  { name :: Name
+  }
+
+derive instance genericSetEditor :: Generic SetEditor
+
+instance eqSetEditor :: Eq SetEditor where
+  eq = gEq
+
+instance showSetEditor :: Show SetEditor where
+  show = gShow
+
+instance arbitrarySetEditor :: Arbitrary SetEditor where
+  arbitrary = do
+    name <- arbitrary
+    pure (SetEditor {name})
+
+instance encodeJsonSetEditor :: EncodeJson SetEditor where
+  encodeJson (SetEditor {name})
+    =  "name" := name
+    ~> jsonEmptyObject
+
+instance decodeJsonSetEditor :: DecodeJson SetEditor where
+  decodeJson json = do
+    o <- decodeJson json
+    name <- o .? "name"
+    pure (SetEditor {name})

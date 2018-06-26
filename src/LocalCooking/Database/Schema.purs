@@ -86,6 +86,16 @@ derive newtype instance showStoredEditorId :: Show StoredEditorId
 derive newtype instance encodeJsonStoredEditorId :: EncodeJson StoredEditorId
 derive newtype instance decodeJsonStoredEditorId :: DecodeJson StoredEditorId
 
+newtype StoredRecordSubmissionId = StoredRecordSubmissionId Int
+
+derive instance genericStoredRecordSubmissionId :: Generic StoredRecordSubmissionId
+derive newtype instance arbitraryStoredRecordSubmissionId :: Arbitrary StoredRecordSubmissionId
+derive newtype instance eqStoredRecordSubmissionId :: Eq StoredRecordSubmissionId
+derive newtype instance ordStoredRecordSubmissionId :: Ord StoredRecordSubmissionId
+derive newtype instance showStoredRecordSubmissionId :: Show StoredRecordSubmissionId
+derive newtype instance encodeJsonStoredRecordSubmissionId :: EncodeJson StoredRecordSubmissionId
+derive newtype instance decodeJsonStoredRecordSubmissionId :: DecodeJson StoredRecordSubmissionId
+
 newtype RecordSubmissionApprovalId = RecordSubmissionApprovalId Int
 
 derive instance genericRecordSubmissionApprovalId :: Generic RecordSubmissionApprovalId

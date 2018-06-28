@@ -3,7 +3,11 @@ module Data.String.Permalink where
 import Prelude
 import Data.Generic (class Generic)
 import Data.Argonaut (class EncodeJson, class DecodeJson)
-import Data.String.Yarn (class IsString)
+import Data.String.Yarn (class IsString, fromChars)
+import Control.Alternative ((<|>))
+import Text.Parsing.StringParser (Parser)
+import Text.Parsing.StringParser.String (alphaNum, char)
+import Text.Parsing.StringParser.Combinators (many1)
 import Test.QuickCheck (class Arbitrary)
 
 
@@ -17,3 +21,7 @@ derive newtype instance showPermalink :: Show Permalink
 derive newtype instance encodeJsonPermalink :: EncodeJson Permalink
 derive newtype instance decodeJsonPermalink :: DecodeJson Permalink
 derive newtype instance isStringPermalink :: IsString Permalink
+
+
+permalinkParser :: Parser Permalink
+permalinkParser = (Permalink <<< fromChars) <$> many1 (alphaNum <|> char '-' <|> char '_')

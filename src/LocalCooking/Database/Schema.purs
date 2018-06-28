@@ -105,3 +105,13 @@ derive newtype instance ordRecordSubmissionApprovalId :: Ord RecordSubmissionApp
 derive newtype instance showRecordSubmissionApprovalId :: Show RecordSubmissionApprovalId
 derive newtype instance encodeJsonRecordSubmissionApprovalId :: EncodeJson RecordSubmissionApprovalId
 derive newtype instance decodeJsonRecordSubmissionApprovalId :: DecodeJson RecordSubmissionApprovalId
+
+newtype StoredBlogPostId = StoredBlogPostId Int
+
+derive instance genericStoredBlogPostId :: Generic StoredBlogPostId
+derive newtype instance arbitraryStoredBlogPostId :: Arbitrary StoredBlogPostId
+derive newtype instance eqStoredBlogPostId :: Eq StoredBlogPostId
+derive newtype instance ordStoredBlogPostId :: Ord StoredBlogPostId
+derive newtype instance showStoredBlogPostId :: Show StoredBlogPostId
+derive newtype instance encodeJsonStoredBlogPostId :: EncodeJson StoredBlogPostId
+derive newtype instance decodeJsonStoredBlogPostId :: DecodeJson StoredBlogPostId

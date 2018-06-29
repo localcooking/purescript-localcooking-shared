@@ -13,7 +13,9 @@ derive instance genericMarkdownText :: Generic MarkdownText
 derive newtype instance arbitraryMarkdownText :: Arbitrary MarkdownText
 derive newtype instance eqMarkdownText :: Eq MarkdownText
 derive newtype instance ordMarkdownText :: Ord MarkdownText
-derive newtype instance showMarkdownText :: Show MarkdownText
 derive newtype instance encodeJsonMarkdownText :: EncodeJson MarkdownText
 derive newtype instance decodeJsonMarkdownText :: DecodeJson MarkdownText
 derive newtype instance isStringMarkdownText :: IsString MarkdownText
+
+instance showMarkdownText :: Show MarkdownText where
+  show (MarkdownText x) = x

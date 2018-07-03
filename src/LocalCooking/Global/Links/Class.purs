@@ -118,18 +118,16 @@ type WREffects eff =
 withRedirectPolicy :: forall eff siteLinks userDetails userDetailsLinks
                     . LocalCookingSiteLinks siteLinks userDetailsLinks
                    => Eq siteLinks
-                   => { continue :: siteLinks -> Eff (WREffects eff) Unit
-                      , onError :: Eff (WREffects eff) Unit
+                   => { onError :: Eff (WREffects eff) Unit
                       , extraRedirect :: siteLinks -> Maybe userDetails -> Maybe siteLinks
                       , authTokenSignal :: IxSignal (WREffects eff) (Maybe AuthToken)
                       , userDetailsSignal :: IxSignal (WREffects eff) (Maybe userDetails)
                       , globalErrorQueue :: One.Queue (write :: WRITE) (WREffects eff) GlobalError
                       }
                    -> siteLinks
-                   -> Eff (WREffects eff) Unit
+                   -> Eff (WREffects eff) siteLinks
 withRedirectPolicy
-  { continue
-  , onError
+  { onError
   , extraRedirect
   , authTokenSignal
   , userDetailsSignal
@@ -140,30 +138,30 @@ withRedirectPolicy
   Just _ -> do
     mAuth <- IxSignal.get authTokenSignal
     case mAuth of
-      Just _ -> continue siteLink
+      Just _ -> pure siteLink
       Nothing -> do
         void $ setTimeout 1000 $ -- FIXME timeouts suck
           One.putQueue globalErrorQueue (GlobalErrorRedirect RedirectUserDetailsNoAuth)
         onError
-        continue rootLink
+        pure rootLink
   _ | siteLink == registerLink -> do
       mAuth <- IxSignal.get authTokenSignal
       case mAuth of
-        Nothing -> continue siteLink
+        Nothing -> pure siteLink
         Just _ -> do
           void $ setTimeout 1000 $ -- FIXME timeouts suck
             One.putQueue globalErrorQueue (GlobalErrorRedirect RedirectRegisterAuth)
           onError
-          continue rootLink
+          pure rootLink
     | otherwise -> do
       mUserDetails <- IxSignal.get userDetailsSignal
       case extraRedirect siteLink mUserDetails of
-        Nothing -> continue siteLink
+        Nothing -> pure siteLink
         Just y -> do
           void $ setTimeout 1000 $ -- FIXME timeouts suck
             One.putQueue globalErrorQueue (GlobalErrorRedirect RedirectUserDetailsNoAuth)
           onError
-          continue y
+          pure y
 
 
 

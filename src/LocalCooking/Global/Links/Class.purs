@@ -1,5 +1,9 @@
 module LocalCooking.Global.Links.Class where
 
+
+import LocalCooking.Common.AccessToken.Auth (AuthToken)
+import LocalCooking.Global.Error (GlobalError (GlobalErrorRedirect), RedirectError (..))
+
 import Prelude
 import Data.URI.Location
   ( class ToLocation, class FromLocation
@@ -19,10 +23,13 @@ import Text.Parsing.StringParser.String (string, char, eof)
 import Text.Parsing.StringParser.Combinators (optionMaybe)
 import Control.Alternative ((<|>))
 import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Ref (REF)
+import Control.Monad.Eff.Timer (TIMER, setTimeout)
 import Control.Monad.Eff.Console (CONSOLE, log, warn)
 import Control.Monad.Eff.Exception (EXCEPTION, throw)
 import Control.Monad.Eff.Uncurried (mkEffFn1, runEffFn2)
 import Control.Monad.Eff.Unsafe (unsafeCoerceEff)
+
 import DOM (DOM)
 import DOM.HTML (window)
 import DOM.HTML.History (DocumentTitle (..), pushState, replaceState, URL (..))
@@ -31,6 +38,12 @@ import DOM.HTML.Window.Extra (onPopStateImpl)
 import DOM.HTML.Location (href)
 import DOM.HTML.Types (History, HISTORY, Window)
 import Unsafe.Coerce (unsafeCoerce)
+
+import IxSignal.Internal (IxSignal)
+import IxSignal.Internal as IxSignal
+import Queue.Scope (WRITE)
+import Queue.One as One
+
 
 
 
@@ -93,6 +106,64 @@ defaultSiteLinksToDocumentTitle link =
       | otherwise -> toDocumentTitle link <> docT
   where
     docT = "Local Cooking" <> subsidiaryTitle (Proxy :: Proxy siteLinks)
+
+
+
+type WREffects eff =
+  ( ref :: REF
+  , timer :: TIMER
+  | eff)
+
+
+withRedirectPolicy :: forall eff siteLinks userDetails userDetailsLinks
+                    . LocalCookingSiteLinks siteLinks userDetailsLinks
+                   => Eq siteLinks
+                   => { continue :: siteLinks -> Eff (WREffects eff) Unit
+                      , onError :: Eff (WREffects eff) Unit
+                      , extraRedirect :: siteLinks -> Maybe userDetails -> Maybe siteLinks
+                      , authTokenSignal :: IxSignal (WREffects eff) (Maybe AuthToken)
+                      , userDetailsSignal :: IxSignal (WREffects eff) (Maybe userDetails)
+                      , globalErrorQueue :: One.Queue (write :: WRITE) (WREffects eff) GlobalError
+                      }
+                   -> siteLinks
+                   -> Eff (WREffects eff) Unit
+withRedirectPolicy
+  { continue
+  , onError
+  , extraRedirect
+  , authTokenSignal
+  , userDetailsSignal
+  , globalErrorQueue
+  }
+  siteLink
+  = case getUserDetailsLink siteLink of
+  Just _ -> do
+    mAuth <- IxSignal.get authTokenSignal
+    case mAuth of
+      Just _ -> continue siteLink
+      Nothing -> do
+        void $ setTimeout 1000 $ -- FIXME timeouts suck
+          One.putQueue globalErrorQueue (GlobalErrorRedirect RedirectUserDetailsNoAuth)
+        onError
+        continue rootLink
+  _ | siteLink == registerLink -> do
+      mAuth <- IxSignal.get authTokenSignal
+      case mAuth of
+        Nothing -> continue siteLink
+        Just _ -> do
+          void $ setTimeout 1000 $ -- FIXME timeouts suck
+            One.putQueue globalErrorQueue (GlobalErrorRedirect RedirectRegisterAuth)
+          onError
+          continue rootLink
+    | otherwise -> do
+      mUserDetails <- IxSignal.get userDetailsSignal
+      case extraRedirect siteLink mUserDetails of
+        Nothing -> continue siteLink
+        Just y -> do
+          void $ setTimeout 1000 $ -- FIXME timeouts suck
+            One.putQueue globalErrorQueue (GlobalErrorRedirect RedirectUserDetailsNoAuth)
+          onError
+          continue y
 
 
 

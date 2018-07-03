@@ -24,7 +24,7 @@
     "purescript-string-parsers": "^3.1.0",
     "purescript-dom": "^4.16.0",
     "purescript-zeta": "^1.0.0",
-    "purescript-queue": "git@github.com:athanclark/purescript-queue.git#3f62305744d44b0985053875d45e5878416dbef5",
+    "purescript-queue": "^6.0.0",
     "purescript-now": "3.x"
   },
   "devDependencies": {

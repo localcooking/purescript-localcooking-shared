@@ -41,7 +41,7 @@ import Unsafe.Coerce (unsafeCoerce)
 
 import IxSignal.Internal (IxSignal)
 import IxSignal.Internal as IxSignal
-import Queue.Scope (WRITE)
+import Queue.Types (WRITE)
 import Queue.One as One
 
 

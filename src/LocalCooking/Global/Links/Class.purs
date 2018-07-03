@@ -229,47 +229,44 @@ initSiteLinks :: forall eff siteLinks userDetailsLinks
               => Show siteLinks
               => Eff ( console :: CONSOLE
                      , dom     :: DOM
-                     , history :: HISTORY
                      | eff) siteLinks
 initSiteLinks = do
   w <- window
   l <- location w
-  h <- history w
   p <- href l
   let rootLink' :: siteLinks
       rootLink' = rootLink
   case URI.parse p of
     Left e -> do
       warn $ "Href parsing error: " <> show e
-      replaceState' rootLink' h
       pure rootLink'
     Right uri -> case fromURI uri of
       Nothing -> do
         warn $ "URI can't be a location: " <> show uri
-        replaceState' rootLink' h
         pure rootLink'
       Just {location: location@(Location _ mQuery _)} -> case fromLocation location of
         Left e -> do
           warn $ "Location can't be a SiteLinks: " <> e <> ", " <> printLocation location
-          replaceState' rootLink' h
           pure rootLink'
         Right (x :: siteLinks) -> do
           -- FIXME only adjust for authToken when it's parsable? Why?
           case mQuery of
-            Nothing -> pure x
+            Nothing -> do
+              log $ "Sucessfully parsed initSiteLinks from location: " <> printLocation location <> ", " <> show x
+              pure x
             Just (Query qs) -> do
               case
                     StrMap.lookup "authToken" (StrMap.fromFoldable qs)
                 <|> StrMap.lookup "formData" (StrMap.fromFoldable qs)
                 <|> StrMap.lookup "emailToken" (StrMap.fromFoldable qs)
                 of
-                Nothing -> pure x
+                Nothing -> do
+                  log $ "Sucessfully parsed initSiteLinks from location: " <> printLocation location <> ", " <> show x
+                  pure x
                 Just _
                   | x == emailConfirmLink -> do
                     warn "Redirecting to root due to email confirm token"
-                    replaceState' rootLink' h
                     pure rootLink'
                   | otherwise -> do
                     warn $ "Redirecting to parsed value " <> show x <> ", due to presence of query parameters"
-                    replaceState' x h
                     pure x

@@ -28,7 +28,6 @@ import Control.Monad.Eff.Timer (TIMER, setTimeout)
 import Control.Monad.Eff.Console (CONSOLE, log, warn)
 import Control.Monad.Eff.Exception (EXCEPTION, throw)
 import Control.Monad.Eff.Uncurried (mkEffFn1, runEffFn2)
-import Control.Monad.Eff.Unsafe (unsafeCoerceEff)
 
 import DOM (DOM)
 import DOM.HTML (window)
@@ -112,12 +111,14 @@ defaultSiteLinksToDocumentTitle link =
 type WREffects eff =
   ( ref :: REF
   , timer :: TIMER
+  , console :: CONSOLE
   | eff)
 
 
 withRedirectPolicy :: forall eff siteLinks userDetails userDetailsLinks
                     . LocalCookingSiteLinks siteLinks userDetailsLinks
                    => Eq siteLinks
+                   => Show siteLinks
                    => { onError :: Eff (WREffects eff) Unit
                       , extraRedirect :: siteLinks -> Maybe userDetails -> Maybe siteLinks
                       , authToken :: Maybe AuthToken
@@ -138,6 +139,7 @@ withRedirectPolicy
   Just _ -> case mAuth of
     Just _ -> pure siteLink
     Nothing -> do
+      warn $ "Redirecting: no Auth while in /userDetails/* - " <> show siteLink
       void $ setTimeout 1000 $ -- FIXME timeouts suck
         One.putQueue globalErrorQueue (GlobalErrorRedirect RedirectUserDetailsNoAuth)
       onError
@@ -145,6 +147,7 @@ withRedirectPolicy
   _ | siteLink == registerLink -> case mAuth of
       Nothing -> pure siteLink
       Just _ -> do
+        warn $ "Redirecting: auth while in /register - " <> show siteLink
         void $ setTimeout 1000 $ -- FIXME timeouts suck
           One.putQueue globalErrorQueue (GlobalErrorRedirect RedirectRegisterAuth)
         onError
@@ -154,6 +157,7 @@ withRedirectPolicy
       case extraRedirect siteLink mUserDetails of
         Nothing -> pure siteLink
         Just y -> do
+          warn $ "Redirecting: extra redirect produced new link - old: " <> show siteLink <> ", new: " <> show y
           void $ setTimeout 1000 $ -- FIXME timeouts suck
             One.putQueue globalErrorQueue (GlobalErrorRedirect RedirectUserDetailsNoAuth)
           onError
@@ -166,7 +170,7 @@ pushState' :: forall eff siteLinks userDetailsLinks
            => Eq siteLinks
            => LocalCookingSiteLinks siteLinks userDetailsLinks
            => siteLinks -> History -> Eff (history :: HISTORY | eff) Unit
-pushState' x h = do
+pushState' x h =
   pushState
     (toForeign $ encodeJson $ printLocation $ toLocation x)
     (defaultSiteLinksToDocumentTitle x)
@@ -177,11 +181,9 @@ pushState' x h = do
 replaceState' :: forall eff siteLinks userDetailsLinks
                . ToLocation siteLinks
               => Eq siteLinks
-              => Show siteLinks
               => LocalCookingSiteLinks siteLinks userDetailsLinks
               => siteLinks -> History -> Eff (history :: HISTORY | eff) Unit
-replaceState' x h = do
-  unsafeCoerceEff $ log $ "Replacing state... " <> show x
+replaceState' x h =
   replaceState
     (toForeign $ encodeJson $ printLocation $ toLocation x)
     (defaultSiteLinksToDocumentTitle x)

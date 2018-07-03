@@ -70,8 +70,10 @@ class ( Eq siteLinks
 -- | Parse casual site-links, while allowing for others to be parsed out of this scope
 defaultSiteLinksPathParser :: forall siteLinks userDetailsLinks
                             . LocalCookingSiteLinks siteLinks userDetailsLinks
-                           => Parser userDetailsLinks -> Parser siteLinks
-defaultSiteLinksPathParser userDetailsLinksParser = do
+                           => Parser userDetailsLinks
+                           -> Maybe (Parser siteLinks)
+                           -> Parser siteLinks
+defaultSiteLinksPathParser userDetailsLinksParser mMoreGeneral = do
   let root = rootLink <$ eof
       register = do
         void (string "register")
@@ -80,11 +82,14 @@ defaultSiteLinksPathParser userDetailsLinksParser = do
         void (string "userDetails")
         let none = Nothing <$ eof
             some = Just <$> userDetailsLinksParser
-        mUserDetails <- none <|> some
+        mUserDetails <- some <|> none
         pure (userDetailsLink mUserDetails)
   try register
     <|> try userDetails
-    <|> root
+    <|> ( case mMoreGeneral of
+            Nothing -> root
+            Just moreGeneral -> moreGeneral <|> root
+        )
   where
     divider = char '/'
 

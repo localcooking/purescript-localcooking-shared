@@ -78,7 +78,9 @@ defaultSiteLinksPathParser userDetailsLinksParser = do
         pure registerLink
       userDetails = do
         void (string "userDetails")
-        mUserDetails <- optionMaybe userDetailsLinksParser
+        let none = Nothing <$ eof
+            some = Just <$> userDetailsLinksParser
+        mUserDetails <- none <|> some
         pure (userDetailsLink mUserDetails)
   try register
     <|> try userDetails

@@ -145,6 +145,9 @@ instance localCookingTestSiteLinksTestSiteLinks :: LocalCookingSiteLinks TestSit
     _ -> Nothing
   toDocumentTitle _ = "" -- FIXME how to get blog title from permalink?
   subsidiaryTitle _ = " Blog"
+  breadcrumb siteLink = case siteLink of
+    NewBlogPostLink -> [RootLink Nothing]
+    _ -> []
 
 
 -- Policy: don't fail on bad query params / fragment unless you have to

@@ -64,6 +64,7 @@ class ( Eq siteLinks
   emailConfirmLink :: siteLinks
   toDocumentTitle :: siteLinks -> String -- ^ The prefix, i.e. `Register - `
   subsidiaryTitle :: Proxy siteLinks -> String -- ^ The suffix, i.e. ` Chefs`
+  breadcrumb :: siteLinks -> Array siteLinks
 
 
 -- | Parse casual site-links, while allowing for others to be parsed out of this scope

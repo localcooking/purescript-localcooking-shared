@@ -20,7 +20,6 @@ import Data.Argonaut (encodeJson, decodeJson)
 import Type.Proxy (Proxy (..))
 import Text.Parsing.StringParser (Parser, runParser, try)
 import Text.Parsing.StringParser.String (string, char, eof)
-import Text.Parsing.StringParser.Combinators (optionMaybe)
 import Control.Alternative ((<|>))
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Ref (REF)
@@ -32,7 +31,7 @@ import Control.Monad.Eff.Uncurried (mkEffFn1, runEffFn2)
 import DOM (DOM)
 import DOM.HTML (window)
 import DOM.HTML.History (DocumentTitle (..), pushState, replaceState, URL (..))
-import DOM.HTML.Window (location, history)
+import DOM.HTML.Window (location)
 import DOM.HTML.Window.Extra (onPopStateImpl)
 import DOM.HTML.Location (href)
 import DOM.HTML.Types (History, HISTORY, Window)
@@ -122,15 +121,16 @@ type WREffects eff =
   | eff)
 
 
-withRedirectPolicy :: forall eff siteLinks userDetails userDetailsLinks
+withRedirectPolicy :: forall eff siteLinks userDetails userDetailsLinks siteError
                     . LocalCookingSiteLinks siteLinks userDetailsLinks
                    => Eq siteLinks
                    => Show siteLinks
                    => { onError :: Eff (WREffects eff) Unit
-                      , extraRedirect :: siteLinks -> Maybe userDetails -> Maybe siteLinks
+                      , extraRedirect :: siteLinks -> Maybe userDetails -> Maybe {siteLink :: siteLinks, siteError :: siteError}
                       , authToken :: Maybe AuthToken
                       , userDetailsSignal :: IxSignal (WREffects eff) (Maybe userDetails)
                       , globalErrorQueue :: One.Queue (write :: WRITE) (WREffects eff) GlobalError
+                      , siteErrorQueue :: One.Queue (write :: WRITE) (WREffects eff) siteError
                       }
                    -> siteLinks
                    -> Eff (WREffects eff) siteLinks
@@ -140,6 +140,7 @@ withRedirectPolicy
   , authToken: mAuth
   , userDetailsSignal
   , globalErrorQueue
+  , siteErrorQueue
   }
   siteLink
   = case getUserDetailsLink siteLink of
@@ -163,10 +164,10 @@ withRedirectPolicy
       mUserDetails <- IxSignal.get userDetailsSignal
       case extraRedirect siteLink mUserDetails of
         Nothing -> pure siteLink
-        Just y -> do
+        Just {siteLink:y,siteError} -> do
           warn $ "Redirecting: extra redirect produced new link - old: " <> show siteLink <> ", new: " <> show y
           void $ setTimeout 1000 $ -- FIXME timeouts suck
-            One.putQueue globalErrorQueue (GlobalErrorRedirect RedirectUserDetailsNoAuth)
+            One.putQueue siteErrorQueue siteError
           onError
           pure y
 

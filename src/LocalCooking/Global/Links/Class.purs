@@ -22,6 +22,7 @@ import Type.Proxy (Proxy (..))
 import Text.Parsing.StringParser (Parser, runParser, try)
 import Text.Parsing.StringParser.String (string, char, eof)
 import Control.Alternative ((<|>))
+import Control.Monad.Aff (Aff, runAff_)
 import Control.Monad.Eff (Eff, kind Effect)
 import Control.Monad.Eff.Ref (REF)
 import Control.Monad.Eff.Timer (TIMER, setTimeout)
@@ -101,9 +102,9 @@ defaultSiteLinksPathParser userDetailsLinksParser mMoreGeneral = do
 defaultSiteLinksToDocumentTitle :: forall siteLinks userDetailsLinks eff
                                  . LocalCookingSiteLinks siteLinks userDetailsLinks
                                 => Eq siteLinks
-                                => (siteLinks -> Eff eff String)
+                                => (siteLinks -> Aff eff String)
                                 -> siteLinks
-                                -> Eff eff DocumentTitle
+                                -> Aff eff DocumentTitle
 defaultSiteLinksToDocumentTitle toDocumentTitle link =
   case getUserDetailsLink link of
     Just mDetails ->
@@ -132,12 +133,12 @@ withRedirectPolicy :: forall eff siteLinks userDetails userDetailsLinks siteErro
                     . LocalCookingSiteLinks siteLinks userDetailsLinks
                    => Eq siteLinks
                    => Show siteLinks
-                   => { onError :: Eff (WREffects eff) Unit
-                      , extraRedirect :: siteLinks -> Maybe userDetails -> Maybe {siteLink :: siteLinks, siteError :: siteError}
-                      , authToken :: Maybe AuthToken
+                   => { onError           :: Eff (WREffects eff) Unit
+                      , extraRedirect     :: siteLinks -> Maybe userDetails -> Maybe {siteLink :: siteLinks, siteError :: siteError}
+                      , authToken         :: Maybe AuthToken
                       , userDetailsSignal :: IxSignal (WREffects eff) (Maybe userDetails)
-                      , globalErrorQueue :: One.Queue (write :: WRITE) (WREffects eff) GlobalError
-                      , siteErrorQueue :: One.Queue (write :: WRITE) (WREffects eff) siteError
+                      , globalErrorQueue  :: One.Queue (write :: WRITE) (WREffects eff) GlobalError
+                      , siteErrorQueue    :: One.Queue (write :: WRITE) (WREffects eff) siteError
                       }
                    -> siteLinks
                    -> Eff (WREffects eff) siteLinks
@@ -184,34 +185,42 @@ pushState' :: forall eff siteLinks userDetailsLinks
             . ToLocation siteLinks
            => Eq siteLinks
            => LocalCookingSiteLinks siteLinks userDetailsLinks
-           => (siteLinks -> Eff (history :: HISTORY | eff) String)
+           => (siteLinks -> Aff (history :: HISTORY, console :: CONSOLE | eff) String)
            -> siteLinks
            -> History
-           -> Eff (history :: HISTORY | eff) Unit
+           -> Eff (history :: HISTORY, console :: CONSOLE | eff) Unit
 pushState' toDocumentTitle x h = do
-  title <- defaultSiteLinksToDocumentTitle toDocumentTitle x
-  pushState
-    (toForeign $ encodeJson $ printLocation $ toLocation x)
-    title
-    (URL $ Location.printLocation $ toLocation x)
-    h
+  let resolve eX = case eX of
+        Left e ->
+          warn $ "pushState' failed - " <> show e
+        Right title ->
+          pushState
+            (toForeign $ encodeJson $ printLocation $ toLocation x)
+            title
+            (URL $ Location.printLocation $ toLocation x)
+            h
+  runAff_ resolve (defaultSiteLinksToDocumentTitle toDocumentTitle x)
 
 
 replaceState' :: forall eff siteLinks userDetailsLinks
                . ToLocation siteLinks
               => Eq siteLinks
               => LocalCookingSiteLinks siteLinks userDetailsLinks
-              => (siteLinks -> Eff (history :: HISTORY | eff) String)
+              => (siteLinks -> Aff (history :: HISTORY, console :: CONSOLE | eff) String)
               -> siteLinks
               -> History
-              -> Eff (history :: HISTORY | eff) Unit
+              -> Eff (history :: HISTORY, console :: CONSOLE | eff) Unit
 replaceState' toDocumentTitle x h = do
-  title <- defaultSiteLinksToDocumentTitle toDocumentTitle x
-  replaceState
-    (toForeign $ encodeJson $ printLocation $ toLocation x)
-    title
-    (URL $ Location.printLocation $ toLocation x)
-    h
+  let resolve eX = case eX of
+        Left e ->
+          warn $ "replaceState' failed - " <> show e
+        Right title ->
+          replaceState
+            (toForeign $ encodeJson $ printLocation $ toLocation x)
+            title
+            (URL $ Location.printLocation $ toLocation x)
+            h
+  runAff_ resolve (defaultSiteLinksToDocumentTitle toDocumentTitle x)
 
 
 onPopState :: forall eff siteLinks userDetailsLinks

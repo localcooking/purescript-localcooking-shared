@@ -42,7 +42,7 @@ import Text.Parsing.StringParser (Parser, runParser, try)
 import Text.Parsing.StringParser.String (char, string)
 import Type.Proxy (Proxy (..))
 import Control.Alternative ((<|>))
-import Control.Monad.Eff (Eff)
+import Control.Monad.Eff (Eff, kind Effect)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Test.QuickCheck (class Arbitrary, arbitrary, quickCheck, Result (..))
 import Test.QuickCheck.Gen (oneOf)
@@ -135,7 +135,8 @@ instance toLocationTestSiteLinks :: ToLocation TestSiteLinks where
         ) Nothing Nothing
 
 
-instance localCookingTestSiteLinksTestSiteLinks :: LocalCookingSiteLinks TestSiteLinks TestUserDetails where
+instance localCookingTestSiteLinksTestSiteLinks
+         :: LocalCookingSiteLinks TestSiteLinks TestUserDetails where
   rootLink = RootLink Nothing
   registerLink = RegisterLink
   userDetailsLink = UserDetailsLink
@@ -143,7 +144,6 @@ instance localCookingTestSiteLinksTestSiteLinks :: LocalCookingSiteLinks TestSit
   getUserDetailsLink link = case link of
     UserDetailsLink mDetails -> Just mDetails
     _ -> Nothing
-  toDocumentTitle _ = "" -- FIXME how to get blog title from permalink?
   subsidiaryTitle _ = " Blog"
   breadcrumb siteLink = case siteLink of
     NewBlogPostLink -> Just $ NonEmpty (RootLink Nothing) []

@@ -22,7 +22,7 @@ import Type.Proxy (Proxy (..))
 import Text.Parsing.StringParser (Parser, runParser, try)
 import Text.Parsing.StringParser.String (string, char, eof)
 import Control.Alternative ((<|>))
-import Control.Monad.Eff (Eff)
+import Control.Monad.Eff (Eff, kind Effect)
 import Control.Monad.Eff.Ref (REF)
 import Control.Monad.Eff.Timer (TIMER, setTimeout)
 import Control.Monad.Eff.Console (CONSOLE, log, warn)
@@ -55,7 +55,9 @@ class Eq userDetailsLinks <= LocalCookingUserDetailsLinks userDetailsLinks where
 -- | Datums supported by all subsidary sites' top-level site links
 class ( Eq siteLinks
       , LocalCookingUserDetailsLinks userDetailsLinks
-      ) <= LocalCookingSiteLinks siteLinks userDetailsLinks
+      ) <= LocalCookingSiteLinks
+           siteLinks
+           userDetailsLinks
            | siteLinks -> userDetailsLinks
            , userDetailsLinks -> siteLinks where
   rootLink :: siteLinks
@@ -63,7 +65,7 @@ class ( Eq siteLinks
   userDetailsLink :: Maybe userDetailsLinks -> siteLinks
   getUserDetailsLink :: siteLinks -> Maybe (Maybe userDetailsLinks)
   emailConfirmLink :: siteLinks
-  toDocumentTitle :: siteLinks -> String -- ^ The prefix, i.e. `Register - `
+  -- NOTE toDocumentTitle now addressed as a parameter - effective function
   subsidiaryTitle :: Proxy siteLinks -> String -- ^ The suffix, i.e. ` Chefs`
   breadcrumb :: siteLinks -> Maybe (NonEmpty Array siteLinks)
 
@@ -96,21 +98,24 @@ defaultSiteLinksPathParser userDetailsLinksParser mMoreGeneral = do
 
 
 -- | Given a site link, generate a nice browser Document Title
-defaultSiteLinksToDocumentTitle :: forall siteLinks userDetailsLinks
+defaultSiteLinksToDocumentTitle :: forall siteLinks userDetailsLinks eff
                                  . LocalCookingSiteLinks siteLinks userDetailsLinks
                                 => Eq siteLinks
-                                => siteLinks
-                                -> DocumentTitle
-defaultSiteLinksToDocumentTitle link =
-  DocumentTitle $ case getUserDetailsLink link of
+                                => (siteLinks -> Eff eff String)
+                                -> siteLinks
+                                -> Eff eff DocumentTitle
+defaultSiteLinksToDocumentTitle toDocumentTitle link =
+  case getUserDetailsLink link of
     Just mDetails ->
       let x = case mDetails of
                 Nothing -> ""
                 Just d -> toUserDetailsDocumentTitle d
-      in  x <> "User Details - " <> docT
-    _ | link == rootLink -> docT
-      | link == registerLink -> "Register - " <> docT
-      | otherwise -> toDocumentTitle link <> docT
+      in  pure $ DocumentTitle $ x <> "User Details - " <> docT
+    _ | link == rootLink -> pure $ DocumentTitle docT
+      | link == registerLink -> pure $ DocumentTitle $ "Register - " <> docT
+      | otherwise -> do
+          doc <- toDocumentTitle link
+          pure $ DocumentTitle $ doc <> docT
   where
     docT = "Local Cooking" <> subsidiaryTitle (Proxy :: Proxy siteLinks)
 
@@ -179,11 +184,15 @@ pushState' :: forall eff siteLinks userDetailsLinks
             . ToLocation siteLinks
            => Eq siteLinks
            => LocalCookingSiteLinks siteLinks userDetailsLinks
-           => siteLinks -> History -> Eff (history :: HISTORY | eff) Unit
-pushState' x h =
+           => (siteLinks -> Eff (history :: HISTORY | eff) String)
+           -> siteLinks
+           -> History
+           -> Eff (history :: HISTORY | eff) Unit
+pushState' toDocumentTitle x h = do
+  title <- defaultSiteLinksToDocumentTitle toDocumentTitle x
   pushState
     (toForeign $ encodeJson $ printLocation $ toLocation x)
-    (defaultSiteLinksToDocumentTitle x)
+    title
     (URL $ Location.printLocation $ toLocation x)
     h
 
@@ -192,11 +201,15 @@ replaceState' :: forall eff siteLinks userDetailsLinks
                . ToLocation siteLinks
               => Eq siteLinks
               => LocalCookingSiteLinks siteLinks userDetailsLinks
-              => siteLinks -> History -> Eff (history :: HISTORY | eff) Unit
-replaceState' x h =
+              => (siteLinks -> Eff (history :: HISTORY | eff) String)
+              -> siteLinks
+              -> History
+              -> Eff (history :: HISTORY | eff) Unit
+replaceState' toDocumentTitle x h = do
+  title <- defaultSiteLinksToDocumentTitle toDocumentTitle x
   replaceState
     (toForeign $ encodeJson $ printLocation $ toLocation x)
-    (defaultSiteLinksToDocumentTitle x)
+    title
     (URL $ Location.printLocation $ toLocation x)
     h
 

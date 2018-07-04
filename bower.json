@@ -23,7 +23,7 @@
     "purescript-email-validate": "git@git.localcooking.com:private-tooling/purescript-email-validate.git#0d31c1378916bedae77bdfff4e04f2e48e157495",
     "purescript-string-parsers": "^3.1.0",
     "purescript-dom": "^4.16.0",
-    "purescript-zeta": "^1.0.0",
+    "purescript-zeta": "^1.1.0",
     "purescript-queue": "^6.0.0",
     "purescript-now": "3.x"
   },

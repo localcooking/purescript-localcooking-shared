@@ -18,6 +18,7 @@ import Data.StrMap as StrMap
 import Data.Foreign (toForeign, unsafeFromForeign, isNull)
 import Data.Argonaut (encodeJson, decodeJson)
 import Data.NonEmpty (NonEmpty)
+import Data.UUID (GENUUID)
 import Type.Proxy (Proxy (..))
 import Text.Parsing.StringParser (Parser, runParser, try)
 import Text.Parsing.StringParser.String (string, char, eof)
@@ -39,8 +40,6 @@ import DOM.HTML.Location (href)
 import DOM.HTML.Types (History, HISTORY, Window)
 import Unsafe.Coerce (unsafeCoerce)
 
-import IxSignal.Internal (IxSignal)
-import IxSignal.Internal as IxSignal
 import Queue.Types (WRITE)
 import Queue.One as One
 
@@ -126,6 +125,7 @@ type WREffects eff =
   ( ref :: REF
   , timer :: TIMER
   , console :: CONSOLE
+  , uuid :: GENUUID
   | eff)
 
 
@@ -133,12 +133,12 @@ withRedirectPolicy :: forall eff siteLinks userDetails userDetailsLinks siteErro
                     . LocalCookingSiteLinks siteLinks userDetailsLinks
                    => Eq siteLinks
                    => Show siteLinks
-                   => { onError           :: Eff (WREffects eff) Unit
-                      , extraRedirect     :: siteLinks -> Maybe userDetails -> Maybe {siteLink :: siteLinks, siteError :: siteError}
-                      , authToken         :: Maybe AuthToken
-                      , userDetailsSignal :: IxSignal (WREffects eff) (Maybe userDetails)
-                      , globalErrorQueue  :: One.Queue (write :: WRITE) (WREffects eff) GlobalError
-                      , siteErrorQueue    :: One.Queue (write :: WRITE) (WREffects eff) siteError
+                   => { onError          :: Eff (WREffects eff) Unit
+                      , extraRedirect    :: siteLinks -> Maybe userDetails -> Maybe {siteLink :: siteLinks, siteError :: siteError}
+                      , authToken        :: Maybe AuthToken
+                      , userDetails      :: Maybe userDetails
+                      , globalErrorQueue :: One.Queue (write :: WRITE) (WREffects eff) GlobalError
+                      , siteErrorQueue   :: One.Queue (write :: WRITE) (WREffects eff) siteError
                       }
                    -> siteLinks
                    -> Eff (WREffects eff) siteLinks
@@ -146,7 +146,7 @@ withRedirectPolicy
   { onError
   , extraRedirect
   , authToken: mAuth
-  , userDetailsSignal
+  , userDetails: mUserDetails
   , globalErrorQueue
   , siteErrorQueue
   }
@@ -169,7 +169,8 @@ withRedirectPolicy
         onError
         pure rootLink
     | otherwise -> do
-      mUserDetails <- IxSignal.get userDetailsSignal
+      -- Gets the user details on /next/ submission - hopefully to avoid initSiteLinks
+      -- race condition
       case extraRedirect siteLink mUserDetails of
         Nothing -> pure siteLink
         Just {siteLink:y,siteError} -> do

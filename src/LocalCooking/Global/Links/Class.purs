@@ -23,8 +23,7 @@ import Type.Proxy (Proxy (..))
 import Text.Parsing.StringParser (Parser, runParser, try)
 import Text.Parsing.StringParser.String (string, char, eof)
 import Control.Alternative ((<|>))
-import Control.Monad.Aff (Aff, runAff_)
-import Control.Monad.Eff (Eff, kind Effect)
+import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Ref (REF)
 import Control.Monad.Eff.Timer (TIMER, setTimeout)
 import Control.Monad.Eff.Console (CONSOLE, log, warn)
@@ -97,25 +96,41 @@ defaultSiteLinksPathParser userDetailsLinksParser mMoreGeneral = do
     divider = char '/'
 
 
--- | Given a site link, generate a nice browser Document Title
-defaultSiteLinksToDocumentTitle :: forall siteLinks userDetailsLinks eff
+
+prefixDocumentTitle :: forall siteLinks userDetailsLinks
+                     . LocalCookingSiteLinks siteLinks userDetailsLinks
+                    => Eq siteLinks
+                    => String -- ^ prefix, after effects for instance
+                    -> siteLinks -- ^ link
+                    -> DocumentTitle -> DocumentTitle
+prefixDocumentTitle pfx link xx@(DocumentTitle x) =
+  if shouldPrefixDocumentTitle
+    then DocumentTitle (pfx <> x)
+    else xx
+  where
+    shouldPrefixDocumentTitle = case getUserDetailsLink link of
+      Just _ -> false
+      _ | link == rootLink -> false
+        | link == registerLink -> false
+        | otherwise -> true
+
+
+-- | Given a site link, generate a nice browser Document Title - prefix to this
+--   after obtaining an effectful prefix, for instance
+defaultSiteLinksToDocumentTitle :: forall siteLinks userDetailsLinks
                                  . LocalCookingSiteLinks siteLinks userDetailsLinks
                                 => Eq siteLinks
-                                => (siteLinks -> Aff eff String)
-                                -> siteLinks
-                                -> Aff eff DocumentTitle
-defaultSiteLinksToDocumentTitle toDocumentTitle link =
+                                => siteLinks -> DocumentTitle
+defaultSiteLinksToDocumentTitle link = DocumentTitle $
   case getUserDetailsLink link of
     Just mDetails ->
       let x = case mDetails of
                 Nothing -> ""
                 Just d -> toUserDetailsDocumentTitle d
-      in  pure $ DocumentTitle $ x <> "User Details - " <> docT
-    _ | link == rootLink -> pure $ DocumentTitle docT
-      | link == registerLink -> pure $ DocumentTitle $ "Register - " <> docT
-      | otherwise -> do
-          doc <- toDocumentTitle link
-          pure $ DocumentTitle $ doc <> docT
+      in  x <> "User Details - " <> docT
+    _ | link == rootLink -> docT
+      | link == registerLink -> "Register - " <> docT
+      | otherwise -> docT -- NOTE this is where the prefix will occur
   where
     docT = "Local Cooking" <> subsidiaryTitle (Proxy :: Proxy siteLinks)
 
@@ -186,42 +201,32 @@ pushState' :: forall eff siteLinks userDetailsLinks
             . ToLocation siteLinks
            => Eq siteLinks
            => LocalCookingSiteLinks siteLinks userDetailsLinks
-           => (siteLinks -> Aff (history :: HISTORY, console :: CONSOLE | eff) String)
+           => String -- ^ Prefix, post effects
            -> siteLinks
            -> History
            -> Eff (history :: HISTORY, console :: CONSOLE | eff) Unit
-pushState' toDocumentTitle x h = do
-  let resolve eX = case eX of
-        Left e ->
-          warn $ "pushState' failed - " <> show e
-        Right title ->
-          pushState
-            (toForeign $ encodeJson $ printLocation $ toLocation x)
-            title
-            (URL $ Location.printLocation $ toLocation x)
-            h
-  runAff_ resolve (defaultSiteLinksToDocumentTitle toDocumentTitle x)
+pushState' pfx x h = do
+  pushState
+    (toForeign $ encodeJson $ printLocation $ toLocation x)
+    (prefixDocumentTitle pfx x (defaultSiteLinksToDocumentTitle x))
+    (URL $ Location.printLocation $ toLocation x)
+    h
 
 
 replaceState' :: forall eff siteLinks userDetailsLinks
                . ToLocation siteLinks
               => Eq siteLinks
               => LocalCookingSiteLinks siteLinks userDetailsLinks
-              => (siteLinks -> Aff (history :: HISTORY, console :: CONSOLE | eff) String)
+              => String -- ^ Prefix, post effects
               -> siteLinks
               -> History
               -> Eff (history :: HISTORY, console :: CONSOLE | eff) Unit
-replaceState' toDocumentTitle x h = do
-  let resolve eX = case eX of
-        Left e ->
-          warn $ "replaceState' failed - " <> show e
-        Right title ->
-          replaceState
-            (toForeign $ encodeJson $ printLocation $ toLocation x)
-            title
-            (URL $ Location.printLocation $ toLocation x)
-            h
-  runAff_ resolve (defaultSiteLinksToDocumentTitle toDocumentTitle x)
+replaceState' pfx x h = do
+  replaceState
+    (toForeign $ encodeJson $ printLocation $ toLocation x)
+    (prefixDocumentTitle pfx x (defaultSiteLinksToDocumentTitle x))
+    (URL $ Location.printLocation $ toLocation x)
+    h
 
 
 onPopState :: forall eff siteLinks userDetailsLinks

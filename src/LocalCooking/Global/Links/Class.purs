@@ -149,6 +149,7 @@ withRedirectPolicy :: forall eff siteLinks userDetails userDetailsLinks siteErro
                     . LocalCookingSiteLinks siteLinks userDetailsLinks
                    => Eq siteLinks
                    => Show siteLinks
+                   => Show userDetails
                    => { onError          :: Eff (WREffects eff) Unit
                       , extraRedirect    :: siteLinks -> Maybe userDetails -> Maybe {siteLink :: siteLinks, siteError :: siteError}
                       , authToken        :: Maybe AuthToken
@@ -190,7 +191,7 @@ withRedirectPolicy
       case extraRedirect siteLink mUserDetails of
         Nothing -> pure siteLink
         Just {siteLink:y,siteError} -> do
-          warn $ "Redirecting: extra redirect produced new link - old: " <> show siteLink <> ", new: " <> show y
+          warn $ "Redirecting: extra redirect produced new link - old: " <> show siteLink <> ", new: " <> show y <> ", user details: " <> show mUserDetails
           void $ setTimeout 1000 $ -- FIXME timeouts suck
             One.putQueue siteErrorQueue siteError
           onError

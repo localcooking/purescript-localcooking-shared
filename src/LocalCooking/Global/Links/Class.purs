@@ -120,17 +120,18 @@ prefixDocumentTitle pfx link xx@(DocumentTitle x) =
 defaultSiteLinksToDocumentTitle :: forall siteLinks userDetailsLinks
                                  . LocalCookingSiteLinks siteLinks userDetailsLinks
                                 => Eq siteLinks
-                                => siteLinks -> DocumentTitle
-defaultSiteLinksToDocumentTitle link = DocumentTitle $
-  case getUserDetailsLink link of
-    Just mDetails ->
-      let x = case mDetails of
-                Nothing -> ""
-                Just d -> toUserDetailsDocumentTitle d
-      in  x <> "User Details - " <> docT
-    _ | link == rootLink -> docT
-      | link == registerLink -> "Register - " <> docT
-      | otherwise -> docT -- NOTE this is where the prefix will occur
+                                => String -> siteLinks -> DocumentTitle
+defaultSiteLinksToDocumentTitle pfx link =
+  let sfx = DocumentTitle $ case getUserDetailsLink link of
+              Just mDetails ->
+                let x = case mDetails of
+                          Nothing -> ""
+                          Just d -> toUserDetailsDocumentTitle d
+                in  x <> "User Details - " <> docT
+              _ | link == rootLink -> docT
+                | link == registerLink -> "Register - " <> docT
+                | otherwise -> docT -- NOTE this is where the prefix will occur
+  in  prefixDocumentTitle pfx link sfx
   where
     docT = "Local Cooking" <> subsidiaryTitle (Proxy :: Proxy siteLinks)
 
@@ -208,7 +209,7 @@ pushState' :: forall eff siteLinks userDetailsLinks
 pushState' pfx x h = do
   pushState
     (toForeign $ encodeJson $ printLocation $ toLocation x)
-    (prefixDocumentTitle pfx x (defaultSiteLinksToDocumentTitle x))
+    (defaultSiteLinksToDocumentTitle pfx x)
     (URL $ Location.printLocation $ toLocation x)
     h
 
@@ -224,7 +225,7 @@ replaceState' :: forall eff siteLinks userDetailsLinks
 replaceState' pfx x h = do
   replaceState
     (toForeign $ encodeJson $ printLocation $ toLocation x)
-    (prefixDocumentTitle pfx x (defaultSiteLinksToDocumentTitle x))
+    (defaultSiteLinksToDocumentTitle pfx x)
     (URL $ Location.printLocation $ toLocation x)
     h
 

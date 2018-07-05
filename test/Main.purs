@@ -145,9 +145,6 @@ instance localCookingTestSiteLinksTestSiteLinks
     UserDetailsLink mDetails -> Just mDetails
     _ -> Nothing
   subsidiaryTitle _ = " Blog"
-  breadcrumb siteLink = case siteLink of
-    NewBlogPostLink -> Just $ NonEmpty (RootLink Nothing) []
-    _ -> Nothing
 
 
 -- Policy: don't fail on bad query params / fragment unless you have to

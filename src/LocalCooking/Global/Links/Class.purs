@@ -17,7 +17,6 @@ import Data.Either (Either (..))
 import Data.StrMap as StrMap
 import Data.Foreign (toForeign, unsafeFromForeign, isNull)
 import Data.Argonaut (encodeJson, decodeJson)
-import Data.NonEmpty (NonEmpty)
 import Data.UUID (GENUUID)
 import Type.Proxy (Proxy (..))
 import Text.Parsing.StringParser (Parser, runParser, try)
@@ -66,7 +65,6 @@ class ( Eq siteLinks
   emailConfirmLink :: siteLinks
   -- NOTE toDocumentTitle now addressed as a parameter - effective function
   subsidiaryTitle :: Proxy siteLinks -> String -- ^ The suffix, i.e. ` Chefs`
-  breadcrumb :: siteLinks -> Maybe (NonEmpty Array siteLinks)
 
 
 -- | Parse casual site-links, while allowing for others to be parsed out of this scope

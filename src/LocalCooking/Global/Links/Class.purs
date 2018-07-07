@@ -75,9 +75,8 @@ defaultSiteLinksPathParser :: forall siteLinks userDetailsLinks
                            -> Parser siteLinks
 defaultSiteLinksPathParser userDetailsLinksParser mMoreGeneral = do
   let root = rootLink <$ eof
-      register = do
-        void (string "register")
-        pure registerLink
+      register = registerLink <$ string "register"
+      emailConfirm = emailConfirmLink <$ string "emailConfirm"
       userDetails = do
         void (string "userDetails")
         let none = Nothing <$ eof
@@ -85,6 +84,7 @@ defaultSiteLinksPathParser userDetailsLinksParser mMoreGeneral = do
         mUserDetails <- some <|> none
         pure (userDetailsLink mUserDetails)
   try register
+    <|> try emailConfirm
     <|> try userDetails
     <|> ( case mMoreGeneral of
             Nothing -> root

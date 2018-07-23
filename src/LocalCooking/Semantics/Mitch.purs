@@ -1,6 +1,6 @@
 module LocalCooking.Semantics.Mitch where
 
-import LocalCooking.Database.Schema (StoredMealId, StoredReviewId)
+import LocalCooking.Database.Schema (StoredMealId, StoredReviewId, StoredOrderId)
 import LocalCooking.Common.User.Name (Name)
 import LocalCooking.Common.Tag.Chef (ChefTag)
 import LocalCooking.Common.Tag.Meal (MealTag)
@@ -24,6 +24,89 @@ import Data.Generic (class Generic, gEq, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?))
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
+
+
+
+newtype SetCustomer = SetCustomer
+  { name    :: Name
+  , address :: USAAddress
+  }
+
+derive instance genericSetCustomer :: Generic SetCustomer
+
+instance eqSetCustomer :: Eq SetCustomer where
+  eq = gEq
+
+instance showSetCustomer :: Show SetCustomer where
+  show = gShow
+
+instance arbitrarySetCustomer :: Arbitrary SetCustomer where
+  arbitrary = do
+    name <- arbitrary
+    address <- arbitrary
+    pure (SetCustomer {name,address})
+
+instance encodeJsonSetCustomer :: EncodeJson SetCustomer where
+  encodeJson (SetCustomer {name,address})
+    =  "name" := name
+    ~> "address" := address
+    ~> jsonEmptyObject
+
+instance decodeJsonSetCustomer :: DecodeJson SetCustomer where
+  decodeJson json = do
+    o <- decodeJson json
+    name <- o .? "name"
+    address <- o .? "address"
+    pure (SetCustomer {name,address})
+
+newtype CustomerValid = CustomerValid
+  { name    :: Name
+  , address :: USAAddress
+  }
+
+derive instance genericCustomerValid :: Generic CustomerValid
+
+instance eqCustomerValid :: Eq CustomerValid where
+  eq = gEq
+
+instance showCustomerValid :: Show CustomerValid where
+  show = gShow
+
+instance arbitraryCustomerValid :: Arbitrary CustomerValid where
+  arbitrary = do
+    name <- arbitrary
+    address <- arbitrary
+    pure (CustomerValid {name,address})
+
+instance encodeJsonCustomerValid :: EncodeJson CustomerValid where
+  encodeJson (CustomerValid {name,address})
+    =  "name" := name
+    ~> "address" := address
+    ~> jsonEmptyObject
+
+instance decodeJsonCustomerValid :: DecodeJson CustomerValid where
+  decodeJson json = do
+    o <- decodeJson json
+    name <- o .? "name"
+    address <- o .? "address"
+    pure (CustomerValid {name,address})
+
+
+newtype Diets = Diets (Array DietTag)
+derive instance genericDiets :: Generic Diets
+derive newtype instance eqDiets :: Eq Diets
+derive newtype instance showDiets :: Show Diets
+derive newtype instance arbitraryDiets :: Arbitrary Diets
+derive newtype instance encodeJsonDiets :: EncodeJson Diets
+derive newtype instance decodeJsonDiets :: DecodeJson Diets
+
+newtype Allergies = Allergies (Array IngredientTag)
+derive instance genericAllergies :: Generic Allergies
+derive newtype instance eqAllergies :: Eq Allergies
+derive newtype instance showAllergies :: Show Allergies
+derive newtype instance arbitraryAllergies :: Arbitrary Allergies
+derive newtype instance encodeJsonAllergies :: EncodeJson Allergies
+derive newtype instance decodeJsonAllergies :: DecodeJson Allergies
 
 
 
@@ -121,6 +204,51 @@ instance decodeJsonReview :: DecodeJson Review where
     images <- o .? "images"
     pure (Review {rating,submitted,heading,id,body,images})
 
+
+newtype SubmitReview = SubmitReview
+  { order     :: StoredOrderId
+  , rating    :: Rating
+  , heading   :: String
+  , body      :: MarkdownText
+  , images    :: Array ImageSource
+  }
+
+
+derive instance genericSubmitReview :: Generic SubmitReview
+
+instance eqSubmitReview :: Eq SubmitReview where
+  eq = gEq
+
+instance showSubmitReview :: Show SubmitReview where
+  show = gShow
+
+instance arbitrarySubmitReview :: Arbitrary SubmitReview where
+  arbitrary = do
+    order <- arbitrary
+    rating <- arbitrary
+    heading <- arbitrary
+    body <- arbitrary
+    images <- arbitrary
+    pure (SubmitReview {order,rating,heading,body,images})
+
+instance encodeJsonSubmitReview :: EncodeJson SubmitReview where
+  encodeJson (SubmitReview {order,rating,heading,body,images})
+    =  "order" := order
+    ~> "rating" := rating
+    ~> "heading" := heading
+    ~> "body" := body
+    ~> "images" := images
+    ~> jsonEmptyObject
+
+instance decodeJsonSubmitReview :: DecodeJson SubmitReview where
+  decodeJson json = do
+    o <- decodeJson json
+    order <- o .? "order"
+    rating <- o .? "rating"
+    heading <- o .? "heading"
+    body <- o .? "body"
+    images <- o .? "images"
+    pure (SubmitReview {order,rating,heading,body,images})
 
 -- * Menus
 
@@ -549,57 +677,6 @@ instance decodeJsonOrder :: DecodeJson Order where
     JSONDateTime time <- o .? "time"
     volume <- o .? "volume"
     pure (Order {meal,progress,time,volume})
-
-
-
-newtype GetSetCustomer = GetSetCustomer
-  { name    :: Name
-  , address :: USAAddress
-  }
-
-derive instance genericGetSetCustomer :: Generic GetSetCustomer
-
-instance eqGetSetCustomer :: Eq GetSetCustomer where
-  eq = gEq
-
-instance showGetSetCustomer :: Show GetSetCustomer where
-  show = gShow
-
-instance arbitraryGetSetCustomer :: Arbitrary GetSetCustomer where
-  arbitrary = do
-    name <- arbitrary
-    address <- arbitrary
-    pure (GetSetCustomer {name,address})
-
-instance encodeJsonGetSetCustomer :: EncodeJson GetSetCustomer where
-  encodeJson (GetSetCustomer {name,address})
-    =  "name" := name
-    ~> "address" := address
-    ~> jsonEmptyObject
-
-instance decodeJsonGetSetCustomer :: DecodeJson GetSetCustomer where
-  decodeJson json = do
-    o <- decodeJson json
-    name <- o .? "name"
-    address <- o .? "address"
-    pure (GetSetCustomer {name,address})
-
-
-newtype Diets = Diets (Array DietTag)
-derive instance genericDiets :: Generic Diets
-derive newtype instance eqDiets :: Eq Diets
-derive newtype instance showDiets :: Show Diets
-derive newtype instance arbitraryDiets :: Arbitrary Diets
-derive newtype instance encodeJsonDiets :: EncodeJson Diets
-derive newtype instance decodeJsonDiets :: DecodeJson Diets
-
-newtype Allergies = Allergies (Array IngredientTag)
-derive instance genericAllergies :: Generic Allergies
-derive newtype instance eqAllergies :: Eq Allergies
-derive newtype instance showAllergies :: Show Allergies
-derive newtype instance arbitraryAllergies :: Arbitrary Allergies
-derive newtype instance encodeJsonAllergies :: EncodeJson Allergies
-derive newtype instance decodeJsonAllergies :: DecodeJson Allergies
 
 
 

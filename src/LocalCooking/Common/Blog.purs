@@ -60,6 +60,9 @@ instance eqBlogPostPriority :: Eq BlogPostPriority where
 instance ordBlogPostPriority :: Ord BlogPostPriority where
   compare = gCompare
 
+instance showBlogPostPriority :: Show BlogPostPriority where
+  show (BlogPostPriority i) = show i
+
 -- TODO Enum
 
 instance arbitraryBlogPostPriority :: Arbitrary BlogPostPriority where
@@ -81,6 +84,9 @@ instance eqBlogPostCategory :: Eq BlogPostCategory where
 
 instance ordBlogPostCategory :: Ord BlogPostCategory where
   compare = gCompare
+
+instance showBlogPostCategory :: Show BlogPostCategory where
+  show (BlogPostCategory x) = x
 
 -- TODO Enum
 

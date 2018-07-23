@@ -1,7 +1,7 @@
 module LocalCooking.Semantics.Blog where
 
 import LocalCooking.Common.User.Name (Name)
-import LocalCooking.Common.Blog (BlogPostPriority, BlogPostCategory)
+import LocalCooking.Common.Blog (BlogPostPriority, BlogPostCategory, BlogPostVariant)
 import LocalCooking.Database.Schema (StoredBlogPostCategoryId)
 
 import Prelude
@@ -99,13 +99,92 @@ instance decodeJsonGetBlogPostCategory :: DecodeJson GetBlogPostCategory where
     id <- o .? "id"
     pure (GetBlogPostCategory {name,permalink,primary,posts,id})
     
+newtype NewBlogPostCategory = NewBlogPostCategory
+  { name      :: BlogPostCategory
+  , permalink :: Permalink
+  , priority  :: BlogPostPriority
+  }
 
+derive instance genericNewBlogPostCategory :: Generic NewBlogPostCategory
+
+instance eqNewBlogPostCategory :: Eq NewBlogPostCategory where
+  eq = gEq
+
+instance showNewBlogPostCategory :: Show NewBlogPostCategory where
+  show = gShow
+
+instance arbitraryNewBlogPostCategory :: Arbitrary NewBlogPostCategory where
+  arbitrary = do
+    name <- arbitrary
+    permalink <- arbitrary
+    priority <- arbitrary
+    pure (NewBlogPostCategory {name,permalink,priority})
+
+instance encodeJsonNewBlogPostCategory :: EncodeJson NewBlogPostCategory where
+  encodeJson (NewBlogPostCategory {name,permalink,priority})
+    =  "name" := name
+    ~> "permalink" := permalink
+    ~> "priority" := priority
+    ~> jsonEmptyObject
+
+instance decodeJsonNewBlogPostCategory :: DecodeJson NewBlogPostCategory where
+  decodeJson json = do
+    o <- decodeJson json
+    name <- o .? "name"
+    permalink <- o .? "permalink"
+    priority <- o .? "priority"
+    pure (NewBlogPostCategory {name,permalink,priority})
+    
+newtype SetBlogPostCategory = SetBlogPostCategory
+  { name      :: BlogPostCategory
+  , permalink :: Permalink
+  , priority  :: BlogPostPriority
+  , id        :: StoredBlogPostCategoryId
+  }
+
+derive instance genericSetBlogPostCategory :: Generic SetBlogPostCategory
+
+instance eqSetBlogPostCategory :: Eq SetBlogPostCategory where
+  eq = gEq
+
+instance showSetBlogPostCategory :: Show SetBlogPostCategory where
+  show = gShow
+
+instance arbitrarySetBlogPostCategory :: Arbitrary SetBlogPostCategory where
+  arbitrary = do
+    name <- arbitrary
+    permalink <- arbitrary
+    priority <- arbitrary
+    id <- arbitrary
+    pure (SetBlogPostCategory {name,permalink,priority,id})
+
+instance encodeJsonSetBlogPostCategory :: EncodeJson SetBlogPostCategory where
+  encodeJson (SetBlogPostCategory {name,permalink,priority,id})
+    =  "name" := name
+    ~> "permalink" := permalink
+    ~> "priority" := priority
+    ~> "id" := id
+    ~> jsonEmptyObject
+
+instance decodeJsonSetBlogPostCategory :: DecodeJson SetBlogPostCategory where
+  decodeJson json = do
+    o <- decodeJson json
+    name <- o .? "name"
+    permalink <- o .? "permalink"
+    priority <- o .? "priority"
+    id <- o .? "id"
+    pure (SetBlogPostCategory {name,permalink,priority,id})
+
+
+-- * Post
 
 newtype BlogPostSynopsis = BlogPostSynopsis
-  { author :: Name
+  { author    :: Name
   , timestamp :: DateTime
-  , headline :: String
+  , headline  :: String
   , permalink :: Permalink
+  , variant   :: BlogPostVariant
+  , priority  :: BlogPostPriority
   }
 
 derive instance genericBlogPostSynopsis :: Generic BlogPostSynopsis
@@ -122,14 +201,18 @@ instance arbitraryBlogPostSynopsis :: Arbitrary BlogPostSynopsis where
     JSONDateTime timestamp <- arbitrary
     headline <- arbitrary
     permalink <- arbitrary
-    pure (BlogPostSynopsis {author,timestamp,headline,permalink})
+    variant <- arbitrary
+    priority <- arbitrary
+    pure (BlogPostSynopsis {author,timestamp,headline,permalink,variant,priority})
 
 instance encodeJsonBlogPostSynopsis :: EncodeJson BlogPostSynopsis where
-  encodeJson (BlogPostSynopsis {author,timestamp,headline,permalink})
+  encodeJson (BlogPostSynopsis {author,timestamp,headline,permalink,variant,priority})
     =  "author" := author
     ~> "timestamp" := JSONDateTime timestamp
     ~> "headline" := headline
     ~> "permalink" := permalink
+    ~> "variant" := variant
+    ~> "priority" := priority
     ~> jsonEmptyObject
 
 instance decodeJsonBlogPostSynopsis :: DecodeJson BlogPostSynopsis where
@@ -139,7 +222,9 @@ instance decodeJsonBlogPostSynopsis :: DecodeJson BlogPostSynopsis where
     JSONDateTime timestamp <- o .? "timestamp"
     headline <- o .? "headline"
     permalink <- o .? "permalink"
-    pure (BlogPostSynopsis {author,timestamp,headline,permalink})
+    variant <- o .? "variant"
+    priority <- o .? "priority"
+    pure (BlogPostSynopsis {author,timestamp,headline,permalink,variant,priority})
 
 
 newtype GetBlogPost = GetBlogPost

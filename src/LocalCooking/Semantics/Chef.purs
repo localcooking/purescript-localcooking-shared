@@ -22,24 +22,24 @@ import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
 
-newtype GetSetChef = GetSetChef
-  { name      :: Name
-  , permalink :: Permalink
+newtype SetChef = SetChef
+  { name      :: Maybe Name
+  , permalink :: Maybe Permalink
   , images    :: Array ImageSource
-  , avatar    :: ImageSource
+  , avatar    :: Maybe ImageSource
   , bio       :: MarkdownText
   , tags      :: Array ChefTag
   }
 
-derive instance genericGetSetChef :: Generic GetSetChef
+derive instance genericSetChef :: Generic SetChef
 
-instance eqGetSetChef :: Eq GetSetChef where
+instance eqSetChef :: Eq SetChef where
   eq = gEq
 
-instance showGetSetChef :: Show GetSetChef where
+instance showSetChef :: Show SetChef where
   show = gShow
 
-instance arbitraryGetSetChef :: Arbitrary GetSetChef where
+instance arbitrarySetChef :: Arbitrary SetChef where
   arbitrary = do
     name <- arbitrary
     permalink <- arbitrary
@@ -47,10 +47,10 @@ instance arbitraryGetSetChef :: Arbitrary GetSetChef where
     avatar <- arbitrary
     bio <- arbitrary
     tags <- arbitrary
-    pure (GetSetChef {name,permalink,images,avatar,bio,tags})
+    pure (SetChef {name,permalink,images,avatar,bio,tags})
 
-instance encodeJsonGetSetChef :: EncodeJson GetSetChef where
-  encodeJson (GetSetChef {name,permalink,images,avatar,bio,tags})
+instance encodeJsonSetChef :: EncodeJson SetChef where
+  encodeJson (SetChef {name,permalink,images,avatar,bio,tags})
     =  "name" := name
     ~> "permalink" := permalink
     ~> "images" := images
@@ -59,7 +59,7 @@ instance encodeJsonGetSetChef :: EncodeJson GetSetChef where
     ~> "tags" := tags
     ~> jsonEmptyObject
 
-instance decodeJsonGetSetChef :: DecodeJson GetSetChef where
+instance decodeJsonSetChef :: DecodeJson SetChef where
   decodeJson json = do
     o <- decodeJson json
     name <- o .? "name"
@@ -68,7 +68,55 @@ instance decodeJsonGetSetChef :: DecodeJson GetSetChef where
     avatar <- o .? "avatar"
     bio <- o .? "bio"
     tags <- o .? "tags"
-    pure (GetSetChef {name,permalink,images,avatar,bio,tags})
+    pure (SetChef {name,permalink,images,avatar,bio,tags})
+
+newtype ChefValid = ChefValid
+  { name      :: Name
+  , permalink :: Permalink
+  , images    :: Array ImageSource
+  , avatar    :: ImageSource
+  , bio       :: MarkdownText
+  , tags      :: Array ChefTag
+  }
+
+derive instance genericChefValid :: Generic ChefValid
+
+instance eqChefValid :: Eq ChefValid where
+  eq = gEq
+
+instance showChefValid :: Show ChefValid where
+  show = gShow
+
+instance arbitraryChefValid :: Arbitrary ChefValid where
+  arbitrary = do
+    name <- arbitrary
+    permalink <- arbitrary
+    images <- arbitrary
+    avatar <- arbitrary
+    bio <- arbitrary
+    tags <- arbitrary
+    pure (ChefValid {name,permalink,images,avatar,bio,tags})
+
+instance encodeJsonChefValid :: EncodeJson ChefValid where
+  encodeJson (ChefValid {name,permalink,images,avatar,bio,tags})
+    =  "name" := name
+    ~> "permalink" := permalink
+    ~> "images" := images
+    ~> "avatar" := avatar
+    ~> "bio" := bio
+    ~> "tags" := tags
+    ~> jsonEmptyObject
+
+instance decodeJsonChefValid :: DecodeJson ChefValid where
+  decodeJson json = do
+    o <- decodeJson json
+    name <- o .? "name"
+    permalink <- o .? "permalink"
+    images <- o .? "images"
+    avatar <- o .? "avatar"
+    bio <- o .? "bio"
+    tags <- o .? "tags"
+    pure (ChefValid {name,permalink,images,avatar,bio,tags})
 
 
 newtype MenuSettings = MenuSettings

@@ -97,12 +97,44 @@ instance decodeJsonUser :: DecodeJson User where
     pure (User {id,created,email,socialLogin,emailConfirmed,roles})
 
 
+newtype ChangePassword = ChangePassword
+  { oldPassword :: HashedPassword
+  , newPassword :: HashedPassword
+  }
+
+derive instance genericChangePassword :: Generic ChangePassword
+
+instance arbitraryChangePassword :: Arbitrary ChangePassword where
+  arbitrary = do
+    oldPassword <- arbitrary
+    newPassword <- arbitrary
+    pure (ChangePassword {oldPassword,newPassword})
+
+instance eqChangePassword :: Eq ChangePassword where
+  eq = gEq
+
+instance showChangePassword :: Show ChangePassword where
+  show = gShow
+
+instance encodeJsonChangePassword :: EncodeJson ChangePassword where
+  encodeJson (ChangePassword {oldPassword,newPassword})
+    =  "oldPassword" := oldPassword
+    ~> "newPassword" := newPassword
+    ~> jsonEmptyObject
+
+instance decodeJsonChangePassword :: DecodeJson ChangePassword where
+  decodeJson json = do
+    o <- decodeJson json
+    oldPassword <- o .? "oldPassword"
+    newPassword <- o .? "newPassword"
+    pure (ChangePassword {oldPassword,newPassword})
+
+
 newtype SetUser = SetUser
   { id :: StoredUserId
-  , email :: EmailAddress
-  , socialLogin :: SocialLoginForm
-  , oldPassword :: HashedPassword
-  , newPassword :: HashedPassword
+  , email :: Maybe EmailAddress
+  , socialLogin :: Maybe SocialLoginForm
+  , changePassword :: Maybe ChangePassword
   }
 
 derive instance genericSetUser :: Generic SetUser
@@ -112,9 +144,8 @@ instance arbitrarySetUser :: Arbitrary SetUser where
     id <- arbitrary
     email <- arbitrary
     socialLogin <- arbitrary
-    oldPassword <- arbitrary
-    newPassword <- arbitrary
-    pure (SetUser {id,email,socialLogin,oldPassword,newPassword})
+    changePassword <- arbitrary
+    pure (SetUser {id,email,socialLogin,changePassword})
 
 instance eqSetUser :: Eq SetUser where
   eq = gEq
@@ -123,12 +154,11 @@ instance showSetUser :: Show SetUser where
   show = gShow
 
 instance encodeJsonSetUser :: EncodeJson SetUser where
-  encodeJson (SetUser {id,email,socialLogin,oldPassword,newPassword})
+  encodeJson (SetUser {id,email,socialLogin,changePassword})
     =  "id" := id
     ~> "email" := email
     ~> "socialLogin" := socialLogin
-    ~> "oldPassword" := oldPassword
-    ~> "newPassword" := newPassword
+    ~> "changePassword" := changePassword
     ~> jsonEmptyObject
 
 instance decodeJsonSetUser :: DecodeJson SetUser where
@@ -137,9 +167,8 @@ instance decodeJsonSetUser :: DecodeJson SetUser where
     id <- o .? "id"
     email <- o .? "email"
     socialLogin <- o .? "socialLogin"
-    oldPassword <- o .? "oldPassword"
-    newPassword <- o .? "newPassword"
-    pure (SetUser {id,email,socialLogin,oldPassword,newPassword})
+    changePassword <- o .? "changePassword"
+    pure (SetUser {id,email,socialLogin,changePassword})
 
 
 

@@ -1,6 +1,6 @@
 module LocalCooking.Semantics.ContentRecord where
 
-import LocalCooking.Semantics.Chef (GetSetChef, MenuSettings, MealSettings)
+import LocalCooking.Semantics.Chef (SetChef, MenuSettings, MealSettings)
 import LocalCooking.Semantics.Common (WithId)
 import LocalCooking.Database.Schema (StoredMenuId, StoredMealId)
 import LocalCooking.Common.Tag.Chef (ChefTag)
@@ -312,7 +312,7 @@ instance decodeJsonTagRecord :: DecodeJson TagRecord where
 
 
 data ChefRecord
-  = ChefRecordChef GetSetChef
+  = ChefRecordChef SetChef
   | ChefRecordSetMenu (WithId StoredMenuId MenuSettings)
   | ChefRecordNewMenu MenuSettings
   | ChefRecordSetMeal (WithId StoredMenuId (WithId StoredMealId MealSettings))

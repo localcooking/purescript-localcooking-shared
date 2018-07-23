@@ -1,9 +1,11 @@
 module LocalCooking.Semantics.Blog where
 
 import LocalCooking.Common.User.Name (Name)
-import LocalCooking.Common.Blog (BlogPostPriority)
+import LocalCooking.Common.Blog (BlogPostPriority, BlogPostCategory)
+import LocalCooking.Database.Schema (StoredBlogPostCategoryId)
 
 import Prelude
+import Data.Maybe (Maybe)
 import Data.String.Markdown (MarkdownText)
 import Data.String.Permalink (Permalink)
 import Data.DateTime (DateTime)
@@ -18,10 +20,85 @@ import Test.QuickCheck (class Arbitrary, arbitrary)
 -- * Category
 
 newtype BlogPostCategorySynopsis = BlogPostCategorySynopsis
-  { name :: Name
+  { name      :: BlogPostCategory
   , permalink :: Permalink
-  , priority :: BlogPostPriority
+  , priority  :: BlogPostPriority
   }
+
+derive instance genericBlogPostCategorySynopsis :: Generic BlogPostCategorySynopsis
+
+instance eqBlogPostCategorySynopsis :: Eq BlogPostCategorySynopsis where
+  eq = gEq
+
+instance showBlogPostCategorySynopsis :: Show BlogPostCategorySynopsis where
+  show = gShow
+
+instance arbitraryBlogPostCategorySynopsis :: Arbitrary BlogPostCategorySynopsis where
+  arbitrary = do
+    name <- arbitrary
+    permalink <- arbitrary
+    priority <- arbitrary
+    pure (BlogPostCategorySynopsis {name,permalink,priority})
+
+instance encodeJsonBlogPostCategorySynopsis :: EncodeJson BlogPostCategorySynopsis where
+  encodeJson (BlogPostCategorySynopsis {name,permalink,priority})
+    =  "name" := name
+    ~> "permalink" := permalink
+    ~> "priority" := priority
+    ~> jsonEmptyObject
+
+instance decodeJsonBlogPostCategorySynopsis :: DecodeJson BlogPostCategorySynopsis where
+  decodeJson json = do
+    o <- decodeJson json
+    name <- o .? "name"
+    permalink <- o .? "permalink"
+    priority <- o .? "priority"
+    pure (BlogPostCategorySynopsis {name,permalink,priority})
+
+newtype GetBlogPostCategory = GetBlogPostCategory
+  { name      :: BlogPostCategory
+  , permalink :: Permalink
+  , primary   :: Maybe BlogPostSynopsis
+  , posts     :: Array BlogPostSynopsis
+  , id        :: StoredBlogPostCategoryId
+  }
+
+derive instance genericGetBlogPostCategory :: Generic GetBlogPostCategory
+
+instance eqGetBlogPostCategory :: Eq GetBlogPostCategory where
+  eq = gEq
+
+instance showGetBlogPostCategory :: Show GetBlogPostCategory where
+  show = gShow
+
+instance arbitraryGetBlogPostCategory :: Arbitrary GetBlogPostCategory where
+  arbitrary = do
+    name <- arbitrary
+    permalink <- arbitrary
+    primary <- arbitrary
+    posts <- arbitrary
+    id <- arbitrary
+    pure (GetBlogPostCategory {name,permalink,primary,posts,id})
+
+instance encodeJsonGetBlogPostCategory :: EncodeJson GetBlogPostCategory where
+  encodeJson (GetBlogPostCategory {name,permalink,primary,posts,id})
+    =  "name" := name
+    ~> "permalink" := permalink
+    ~> "primary" := primary
+    ~> "posts" := posts
+    ~> "id" := id
+    ~> jsonEmptyObject
+
+instance decodeJsonGetBlogPostCategory :: DecodeJson GetBlogPostCategory where
+  decodeJson json = do
+    o <- decodeJson json
+    name <- o .? "name"
+    permalink <- o .? "permalink"
+    primary <- o .? "primary"
+    posts <- o .? "posts"
+    id <- o .? "id"
+    pure (GetBlogPostCategory {name,permalink,primary,posts,id})
+    
 
 
 newtype BlogPostSynopsis = BlogPostSynopsis

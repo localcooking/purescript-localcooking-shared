@@ -115,3 +115,13 @@ derive newtype instance ordStoredBlogPostId :: Ord StoredBlogPostId
 derive newtype instance showStoredBlogPostId :: Show StoredBlogPostId
 derive newtype instance encodeJsonStoredBlogPostId :: EncodeJson StoredBlogPostId
 derive newtype instance decodeJsonStoredBlogPostId :: DecodeJson StoredBlogPostId
+
+newtype StoredBlogPostCategoryId = StoredBlogPostCategoryId Int
+
+derive instance genericStoredBlogPostCategoryId :: Generic StoredBlogPostCategoryId
+derive newtype instance arbitraryStoredBlogPostCategoryId :: Arbitrary StoredBlogPostCategoryId
+derive newtype instance eqStoredBlogPostCategoryId :: Eq StoredBlogPostCategoryId
+derive newtype instance ordStoredBlogPostCategoryId :: Ord StoredBlogPostCategoryId
+derive newtype instance showStoredBlogPostCategoryId :: Show StoredBlogPostCategoryId
+derive newtype instance encodeJsonStoredBlogPostCategoryId :: EncodeJson StoredBlogPostCategoryId
+derive newtype instance decodeJsonStoredBlogPostCategoryId :: DecodeJson StoredBlogPostCategoryId

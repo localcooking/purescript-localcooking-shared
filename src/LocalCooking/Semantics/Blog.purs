@@ -2,7 +2,7 @@ module LocalCooking.Semantics.Blog where
 
 import LocalCooking.Common.User.Name (Name)
 import LocalCooking.Common.Blog (BlogPostPriority, BlogPostCategory, BlogPostVariant)
-import LocalCooking.Database.Schema (StoredBlogPostCategoryId)
+import LocalCooking.Database.Schema (StoredBlogPostId, StoredBlogPostCategoryId)
 
 import Prelude
 import Data.Maybe (Maybe)
@@ -228,11 +228,15 @@ instance decodeJsonBlogPostSynopsis :: DecodeJson BlogPostSynopsis where
 
 
 newtype GetBlogPost = GetBlogPost
-  { author :: Name
+  { author    :: Name
   , timestamp :: DateTime
-  , headline :: String
+  , headline  :: String
   , permalink :: Permalink
   , content   :: MarkdownText
+  , variant   :: BlogPostVariant
+  , priority  :: BlogPostPriority
+  , category  :: BlogPostCategory
+  , id        :: StoredBlogPostId
   }
 
 derive instance genericGetBlogPost :: Generic GetBlogPost
@@ -250,15 +254,23 @@ instance arbitraryGetBlogPost :: Arbitrary GetBlogPost where
     headline <- arbitrary
     permalink <- arbitrary
     content <- arbitrary
-    pure (GetBlogPost {author,timestamp,headline,permalink,content})
+    variant <- arbitrary
+    priority <- arbitrary
+    category <- arbitrary
+    id <- arbitrary
+    pure (GetBlogPost {author,timestamp,headline,permalink,content,variant,priority,category,id})
 
 instance encodeJsonGetBlogPost :: EncodeJson GetBlogPost where
-  encodeJson (GetBlogPost {author,timestamp,headline,permalink,content})
+  encodeJson (GetBlogPost {author,timestamp,headline,permalink,content,variant,priority,category,id})
     =  "author" := author
     ~> "timestamp" := JSONDateTime timestamp
     ~> "headline" := headline
     ~> "permalink" := permalink
     ~> "content" := content
+    ~> "variant" := variant
+    ~> "priority" := priority
+    ~> "category" := category
+    ~> "id" := id
     ~> jsonEmptyObject
 
 instance decodeJsonGetBlogPost :: DecodeJson GetBlogPost where
@@ -269,7 +281,11 @@ instance decodeJsonGetBlogPost :: DecodeJson GetBlogPost where
     headline <- o .? "headline"
     permalink <- o .? "permalink"
     content <- o .? "content"
-    pure (GetBlogPost {author,timestamp,headline,permalink,content})
+    variant <- o .? "variant"
+    priority <- o .? "priority"
+    category <- o .? "category"
+    id <- o .? "id"
+    pure (GetBlogPost {author,timestamp,headline,permalink,content,variant,priority,category,id})
 
 
 newtype NewBlogPost = NewBlogPost

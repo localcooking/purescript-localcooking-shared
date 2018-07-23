@@ -1,6 +1,7 @@
 module LocalCooking.Semantics.Blog where
 
 import LocalCooking.Common.User.Name (Name)
+import LocalCooking.Common.Blog (BlogPostPriority)
 
 import Prelude
 import Data.String.Markdown (MarkdownText)
@@ -11,6 +12,16 @@ import Data.Generic (class Generic, gEq, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?))
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
+
+
+
+-- * Category
+
+newtype BlogPostCategorySynopsis = BlogPostCategorySynopsis
+  { name :: Name
+  , permalink :: Permalink
+  , priority :: BlogPostPriority
+  }
 
 
 newtype BlogPostSynopsis = BlogPostSynopsis

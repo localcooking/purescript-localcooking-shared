@@ -3,7 +3,7 @@ module LocalCooking.Common.Blog where
 import Prelude
 import Data.Either (Either (..))
 import Data.NonEmpty (NonEmpty (..))
-import Data.Generic (class Generic, gShow, gEq, gCompare)
+import Data.Generic (class Generic, gEq, gCompare)
 import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, encodeJson, fail)
 import Control.Alternative ((<|>))
 import Text.Parsing.StringParser (Parser, runParser)
@@ -35,7 +35,10 @@ instance ordBlogPostVariant :: Ord BlogPostVariant where
 -- TODO Enum, Bounded, BoundedEnum
 
 instance showBlogPostVariant :: Show BlogPostVariant where
-  show = gShow
+  show x = case x of
+    CasualBlogPost -> "Casual"
+    BusinessBlogPost -> "Business"
+    PersonalBlogPost -> "Personal"
 
 printBlogPostVariant :: BlogPostVariant -> String
 printBlogPostVariant x = case x of

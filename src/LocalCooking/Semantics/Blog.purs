@@ -297,8 +297,8 @@ newtype NewBlogPost = NewBlogPost
   , permalink :: Permalink
   , content   :: MarkdownText
   , priority  :: BlogPostPriority
-  , category  :: BlogPostCategory
-  , id        :: StoredBlogPostId
+  , category  :: StoredBlogPostCategoryId
+  , primary   :: Boolean
   }
 
 derive instance genericNewBlogPost :: Generic NewBlogPost
@@ -316,17 +316,17 @@ instance arbitraryNewBlogPost :: Arbitrary NewBlogPost where
     content <- arbitrary
     priority <- arbitrary
     category <- arbitrary
-    id <- arbitrary
-    pure (NewBlogPost {headline,permalink,content,priority,category,id})
+    primary <- arbitrary
+    pure (NewBlogPost {headline,permalink,content,priority,category,primary})
 
 instance encodeJsonNewBlogPost :: EncodeJson NewBlogPost where
-  encodeJson (NewBlogPost {headline,permalink,content,priority,category,id})
+  encodeJson (NewBlogPost {headline,permalink,content,priority,category,primary})
     =  "headline" := headline
     ~> "permalink" := permalink
     ~> "content" := content
     ~> "priority" := priority
     ~> "category" := category
-    ~> "id" := id
+    ~> "primary" := primary
     ~> jsonEmptyObject
 
 instance decodeJsonNewBlogPost :: DecodeJson NewBlogPost where
@@ -337,16 +337,16 @@ instance decodeJsonNewBlogPost :: DecodeJson NewBlogPost where
     content <- o .? "content"
     priority <- o .? "priority"
     category <- o .? "category"
-    id <- o .? "id"
-    pure (NewBlogPost {headline,permalink,content,priority,category,id})
+    primary <- o .? "primary"
+    pure (NewBlogPost {headline,permalink,content,priority,category,primary})
 
 
 newtype SetBlogPost = SetBlogPost
-  { headline :: String
+  { headline  :: String
   , permalink :: Permalink
   , content   :: MarkdownText
   , priority  :: BlogPostPriority
-  , category  :: BlogPostCategory
+  , primary   :: Boolean
   , id        :: StoredBlogPostId
   }
 
@@ -364,17 +364,17 @@ instance arbitrarySetBlogPost :: Arbitrary SetBlogPost where
     permalink <- arbitrary
     content <- arbitrary
     priority <- arbitrary
-    category <- arbitrary
+    primary <- arbitrary
     id <- arbitrary
-    pure (SetBlogPost {headline,permalink,content,priority,category,id})
+    pure (SetBlogPost {headline,permalink,content,priority,primary,id})
 
 instance encodeJsonSetBlogPost :: EncodeJson SetBlogPost where
-  encodeJson (SetBlogPost {headline,permalink,content,priority,category,id})
+  encodeJson (SetBlogPost {headline,permalink,content,priority,primary,id})
     =  "headline" := headline
     ~> "permalink" := permalink
     ~> "content" := content
     ~> "priority" := priority
-    ~> "category" := category
+    ~> "primary" := primary
     ~> "id" := id
     ~> jsonEmptyObject
 
@@ -385,6 +385,6 @@ instance decodeJsonSetBlogPost :: DecodeJson SetBlogPost where
     permalink <- o .? "permalink"
     content <- o .? "content"
     priority <- o .? "priority"
-    category <- o .? "category"
+    primary <- o .? "primary"
     id <- o .? "id"
-    pure (SetBlogPost {headline,permalink,content,priority,category,id})
+    pure (SetBlogPost {headline,permalink,content,priority,primary,id})

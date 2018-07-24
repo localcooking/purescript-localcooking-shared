@@ -37,11 +37,14 @@ instance ordBlogPostVariant :: Ord BlogPostVariant where
 instance showBlogPostVariant :: Show BlogPostVariant where
   show = gShow
 
+printBlogPostVariant :: BlogPostVariant -> String
+printBlogPostVariant x = case x of
+  CasualBlogPost -> "casual"
+  BusinessBlogPost -> "business"
+  PersonalBlogPost -> "personal"
+
 instance encodeJsonBlogPostVariant :: EncodeJson BlogPostVariant where
-  encodeJson x = encodeJson $ case x of
-    CasualBlogPost -> "casual"
-    BusinessBlogPost -> "business"
-    PersonalBlogPost -> "personal"
+  encodeJson = encodeJson <<< printBlogPostVariant
 
 instance decodeJsonBlogPostVariant :: DecodeJson BlogPostVariant where
   decodeJson json = do

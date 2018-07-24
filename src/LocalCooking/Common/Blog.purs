@@ -1,9 +1,13 @@
 module LocalCooking.Common.Blog where
 
 import Prelude
+import Data.Either (Either (..))
 import Data.NonEmpty (NonEmpty (..))
 import Data.Generic (class Generic, gShow, gEq, gCompare)
 import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, encodeJson, fail)
+import Control.Alternative ((<|>))
+import Text.Parsing.StringParser (Parser, runParser)
+import Text.Parsing.StringParser.String (string)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 import Test.QuickCheck.Gen (oneOf)
 
@@ -42,12 +46,16 @@ instance encodeJsonBlogPostVariant :: EncodeJson BlogPostVariant where
 instance decodeJsonBlogPostVariant :: DecodeJson BlogPostVariant where
   decodeJson json = do
     s <- decodeJson json
-    case unit of
-      _ | s == "casual" -> pure CasualBlogPost
-        | s == "business" -> pure BusinessBlogPost
-        | s == "personal" -> pure PersonalBlogPost
-        | otherwise -> fail "Not a BlogPostVariant"
+    case runParser blogPostVariantParser s of
+      Left e -> fail $ "Not a BlogPostVariant: " <> show e
+      Right x -> pure x
 
+blogPostVariantParser :: Parser BlogPostVariant
+blogPostVariantParser = do
+  let casual = CasualBlogPost <$ string "casual"
+      business = BusinessBlogPost <$ string "business"
+      personal = PersonalBlogPost <$ string "personal"
+  casual <|> business <|> personal
 
 
 newtype BlogPostPriority = BlogPostPriority Int

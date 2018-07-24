@@ -77,6 +77,7 @@ instance ordBlogPostPriority :: Ord BlogPostPriority where
 instance showBlogPostPriority :: Show BlogPostPriority where
   show (BlogPostPriority i) = show i
 
+
 -- TODO Enum
 
 instance arbitraryBlogPostPriority :: Arbitrary BlogPostPriority where

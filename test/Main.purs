@@ -213,7 +213,7 @@ main = do
   log "--------"
   jsonIsoAssert "LocalCooking.Semantics.Chef.MealSettings" (Proxy :: Proxy Chef.MealSettings)
   jsonIsoAssert "LocalCooking.Semantics.Chef.MenuSettings" (Proxy :: Proxy Chef.MenuSettings)
-  jsonIsoAssert "LocalCooking.Semantics.Chef.GetSetChef" (Proxy :: Proxy Chef.GetSetChef)
+  jsonIsoAssert "LocalCooking.Semantics.Chef.SetChef" (Proxy :: Proxy Chef.SetChef)
   jsonIsoAssert "LocalCooking.Semantics.Chef.Order" (Proxy :: Proxy Chef.Order)
   log "--------"
   jsonIsoAssert "LocalCooking.Semantics.Admin.SetUser" (Proxy :: Proxy Admin.SetUser)

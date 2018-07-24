@@ -25,6 +25,7 @@
     "purescript-dom": "^4.16.0",
     "purescript-queue": "^6.0.0",
     "purescript-js-timers": "^3.0.0",
+    "purescript-parseint": "^0.0.0",
     "purescript-now": "3.x"
   },
   "devDependencies": {

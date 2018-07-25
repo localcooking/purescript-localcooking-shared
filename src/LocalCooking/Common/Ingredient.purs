@@ -6,7 +6,6 @@ import LocalCooking.Common.Tag.Ingredient (IngredientTag)
 import Prelude
 import Data.Generic (class Generic, gShow, gEq)
 import Data.Argonaut (class EncodeJson, class DecodeJson, (~>), (:=), decodeJson, (.?), jsonEmptyObject)
-import Data.String.Yarn (class IsString)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
 

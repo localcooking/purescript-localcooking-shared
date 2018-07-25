@@ -2,7 +2,7 @@ module Data.Argonaut.JSONTuple where
 
 import Prelude
 import Data.Generic (class Generic, gEq, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail, (~>), jsonEmptyObject, (:=), (.?))
+import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (~>), jsonEmptyObject, (:=), (.?))
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
 

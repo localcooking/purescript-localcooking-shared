@@ -1,15 +1,5 @@
 module LocalCooking.Semantics.ContentRecord.Variant where
 
-import LocalCooking.Semantics.Chef (SetChef, MenuSettings, MealSettings)
-import LocalCooking.Semantics.Common (WithId)
-import LocalCooking.Database.Schema (StoredMenuId, StoredMealId)
-import LocalCooking.Common.Tag.Chef (ChefTag)
-import LocalCooking.Common.Tag.Culture (CultureTag)
-import LocalCooking.Common.Tag.Diet (DietTag)
-import LocalCooking.Common.Tag.Farm (FarmTag)
-import LocalCooking.Common.Tag.Ingredient (IngredientTag)
-import LocalCooking.Common.Tag.Meal (MealTag)
-
 import Prelude
 import Data.Maybe (Maybe (..))
 import Data.NonEmpty (NonEmpty (..))

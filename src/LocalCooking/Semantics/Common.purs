@@ -363,36 +363,3 @@ instance decodeJsonSocialLogin :: DecodeJson SocialLogin where
           pure (SocialLoginFB {fbCode})
     socialFB
 
-
-
-newtype WithId k a = WithId
-  { id :: k
-  , content :: a
-  }
-
-derive instance genericWithId :: (Generic k, Generic a) => Generic (WithId k a)
-
-instance showWithId :: (Generic k, Generic a) => Show (WithId k a) where
-  show = gShow
-
-instance eqWithId :: (Generic k, Generic a) => Eq (WithId k a) where
-  eq = gEq
-
-instance arbitraryWithId :: (Arbitrary k, Arbitrary a) => Arbitrary (WithId k a) where
-  arbitrary = do
-    id <- arbitrary
-    content <- arbitrary
-    pure (WithId {id,content})
-
-instance encodeJsonWithId :: (EncodeJson k, EncodeJson a) => EncodeJson (WithId k a) where
-  encodeJson (WithId {id,content})
-    =  "id" := id
-    ~> "content" := content
-    ~> jsonEmptyObject
-
-instance decodeJsonWithId :: (DecodeJson k, DecodeJson a) => DecodeJson (WithId k a) where
-  decodeJson json = do
-    o <- decodeJson json
-    id <- o .? "id"
-    content <- o .? "content"
-    pure (WithId {id,content})

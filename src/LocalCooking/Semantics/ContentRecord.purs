@@ -1,11 +1,8 @@
 module LocalCooking.Semantics.ContentRecord where
 
-import LocalCooking.Semantics.ContentRecord.Variant
-  (TagRecordVariant (..), ChefRecordVariant (..), ProfileRecordVariant (..), ContentRecordVariant (..))
 import LocalCooking.Semantics.Chef (SetChef, MenuSettings, MealSettings)
 import LocalCooking.Semantics.Mitch (SetCustomer)
 import LocalCooking.Semantics.Content (SetEditor)
-import LocalCooking.Semantics.Common (WithId)
 import LocalCooking.Database.Schema (StoredMenuId, StoredMealId)
 import LocalCooking.Common.Tag.Chef (ChefTag)
 import LocalCooking.Common.Tag.Culture (CultureTag)
@@ -15,11 +12,10 @@ import LocalCooking.Common.Tag.Ingredient (IngredientTag)
 import LocalCooking.Common.Tag.Meal (MealTag)
 
 import Prelude
-import Data.Maybe (Maybe (..))
 import Data.NonEmpty (NonEmpty (..))
-import Data.Generic (class Generic, gEq, gCompare, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, fail, (~>), (:=), jsonEmptyObject, (.?))
-import Data.Enum (class Enum, class BoundedEnum, Cardinality (..), cardinality, pred, succ, toEnum, fromEnum)
+import Data.Generic (class Generic, gEq, gShow)
+import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (~>), (:=), jsonEmptyObject, (.?))
+import Data.Argonaut.JSONTuple (JSONTuple)
 import Control.Alternative ((<|>))
 import Test.QuickCheck (class Arbitrary, arbitrary)
 import Test.QuickCheck.Gen (oneOf)
@@ -77,10 +73,10 @@ instance decodeJsonTagRecord :: DecodeJson TagRecord where
 
 
 data ChefRecord
-  = ChefRecordSetMenu (WithId StoredMenuId MenuSettings)
+  = ChefRecordSetMenu (JSONTuple StoredMenuId MenuSettings)
   | ChefRecordNewMenu MenuSettings
-  | ChefRecordSetMeal (WithId StoredMenuId (WithId StoredMealId MealSettings))
-  | ChefRecordNewMeal (WithId StoredMenuId MealSettings)
+  | ChefRecordSetMeal (JSONTuple StoredMenuId (JSONTuple StoredMealId MealSettings))
+  | ChefRecordNewMeal (JSONTuple StoredMenuId MealSettings)
 
 derive instance genericChefRecord :: Generic ChefRecord
 

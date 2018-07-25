@@ -48,6 +48,8 @@ import Test.QuickCheck (class Arbitrary, arbitrary, quickCheck, Result (..))
 import Test.QuickCheck.Gen (oneOf)
 
 
+
+
 data TestUserDetails
   = UserDetailsGeneralLink
   | UserDetailsSecurityLink

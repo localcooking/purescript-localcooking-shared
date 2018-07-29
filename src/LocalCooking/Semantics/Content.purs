@@ -7,8 +7,13 @@ import LocalCooking.Common.User.Name (Name)
 import Prelude
 import Data.Maybe (Maybe)
 import Data.Generic (class Generic, gEq, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?))
+import Data.NonEmpty (NonEmpty (..))
+import Data.Argonaut
+  (class EncodeJson, class DecodeJson, encodeJson, decodeJson
+  , fail, (:=), (~>), jsonEmptyObject, (.?))
+import Control.Alternative ((<|>))
 import Test.QuickCheck (class Arbitrary, arbitrary)
+import Test.QuickCheck.Gen (oneOf)
 
 
 
@@ -109,3 +114,125 @@ instance decodeJsonGetRecordSubmissionPolicy :: DecodeJson GetRecordSubmissionPo
     assigned <- o .? "assigned"
     pure (GetRecordSubmissionPolicy {variant,additional,assigned})
 
+
+-- * Errors
+
+
+data SubmissionPolicy a
+  = NoSubmissionPolicy
+  | SubmissionPolicy a
+
+derive instance genericSubmissionPolicy :: Generic a => Generic (SubmissionPolicy a)
+
+instance arbitrarySubmissionPolicy :: Arbitrary a => Arbitrary (SubmissionPolicy a) where
+  arbitrary = oneOf $ NonEmpty
+    ( pure NoSubmissionPolicy
+    )
+    [ SubmissionPolicy <$> arbitrary
+    ]
+
+instance eqSubmissionPolicy :: Generic a => Eq (SubmissionPolicy a) where
+  eq = gEq
+
+instance showSubmissionPolicy :: Generic a => Show (SubmissionPolicy a) where
+  show = gShow
+
+instance encodeJsonSubmissionPolicy :: EncodeJson a => EncodeJson (SubmissionPolicy a) where
+  encodeJson x = case x of
+    NoSubmissionPolicy -> encodeJson "noSubmissionPolicy"
+    SubmissionPolicy y
+      -> "submissionPolicy"
+      := y
+      ~> jsonEmptyObject
+
+instance decodeJsonSubmissionPolicy :: DecodeJson a => DecodeJson (SubmissionPolicy a) where
+  decodeJson json = do
+    let empty = do
+          s <- decodeJson json
+          if s == "noSubmissionPolicy"
+             then pure NoSubmissionPolicy
+             else fail "Not a SubmissionPolicy"
+        has = do
+          o <- decodeJson json
+          SubmissionPolicy <$> o .? "submissionPolicy"
+    empty <|> has
+
+
+data SubmissionExists a
+  = SubmissionDoesntExist
+  | SubmissionExists a
+
+derive instance genericSubmissionExists :: Generic a => Generic (SubmissionExists a)
+
+instance arbitrarySubmissionExists :: Arbitrary a => Arbitrary (SubmissionExists a) where
+  arbitrary = oneOf $ NonEmpty
+    ( pure SubmissionDoesntExist
+    )
+    [ SubmissionExists <$> arbitrary
+    ]
+
+instance eqSubmissionExists :: Generic a => Eq (SubmissionExists a) where
+  eq = gEq
+
+instance showSubmissionExists :: Generic a => Show (SubmissionExists a) where
+  show = gShow
+
+instance encodeJsonSubmissionExists :: EncodeJson a => EncodeJson (SubmissionExists a) where
+  encodeJson x = case x of
+    SubmissionDoesntExist -> encodeJson "submissionDoesntExist"
+    SubmissionExists y
+      -> "submissionExists"
+      := y
+      ~> jsonEmptyObject
+
+instance decodeJsonSubmissionExists :: DecodeJson a => DecodeJson (SubmissionExists a) where
+  decodeJson json = do
+    let empty = do
+          s <- decodeJson json
+          if s == "submissionDoesntExist"
+             then pure SubmissionDoesntExist
+             else fail "Not a SubmissionExists"
+        has = do
+          o <- decodeJson json
+          SubmissionExists <$> o .? "submissionExists"
+    empty <|> has
+
+
+data EditorExists a
+  = EditorDoesntExist
+  | EditorExists a
+
+derive instance genericEditorExists :: Generic a => Generic (EditorExists a)
+
+instance arbitraryEditorExists :: Arbitrary a => Arbitrary (EditorExists a) where
+  arbitrary = oneOf $ NonEmpty
+    ( pure EditorDoesntExist
+    )
+    [ EditorExists <$> arbitrary
+    ]
+
+instance eqEditorExists :: Generic a => Eq (EditorExists a) where
+  eq = gEq
+
+instance showEditorExists :: Generic a => Show (EditorExists a) where
+  show = gShow
+
+instance encodeJsonEditorExists :: EncodeJson a => EncodeJson (EditorExists a) where
+  encodeJson x = case x of
+    EditorDoesntExist -> encodeJson "editorDoesntExist"
+    EditorExists y
+      -> "editorExists"
+      := y
+      ~> jsonEmptyObject
+
+instance decodeJsonEditorExists :: DecodeJson a => DecodeJson (EditorExists a) where
+  decodeJson json = do
+    let empty = do
+          s <- decodeJson json
+          if s == "editorDoesntExist"
+             then pure EditorDoesntExist
+             else fail "Not a EditorExists"
+        has = do
+          o <- decodeJson json
+          EditorExists <$> o .? "editorExists"
+    empty <|> has

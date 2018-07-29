@@ -722,6 +722,124 @@ instance decodeJsonCartEntry :: DecodeJson CartEntry where
     pure (CartEntry {meal,volume,added})
 
 
+-- * Browse
+
+newtype BrowseMenu = BrowseMenu
+  { chef :: Permalink
+  , deadline :: Date
+  }
+
+derive instance genericBrowseMenu :: Generic BrowseMenu
+
+instance eqBrowseMenu :: Eq BrowseMenu where
+  eq = gEq
+
+instance showBrowseMenu :: Show BrowseMenu where
+  show = gShow
+
+
+instance arbitraryBrowseMenu :: Arbitrary BrowseMenu where
+  arbitrary = do
+    chef <- arbitrary
+    JSONDate deadline <- arbitrary
+    pure (BrowseMenu {chef,deadline})
+
+
+instance encodeJsonBrowseMenu :: EncodeJson BrowseMenu where
+  encodeJson (BrowseMenu {chef,deadline})
+    =  "chef" := chef
+    ~> "deadline" := JSONDate deadline
+    ~> jsonEmptyObject
+
+instance decodeJsonBrowseMenu :: DecodeJson BrowseMenu where
+  decodeJson json = do
+    o <- decodeJson json
+    chef <- o .? "chef"
+    JSONDate deadline <- o .? "deadline"
+    pure (BrowseMenu {chef,deadline})
+
+
+newtype BrowseMeal = BrowseMeal
+  { chef :: Permalink
+  , deadline :: Date
+  , meal :: Permalink
+  }
+
+derive instance genericBrowseMeal :: Generic BrowseMeal
+
+instance eqBrowseMeal :: Eq BrowseMeal where
+  eq = gEq
+
+instance showBrowseMeal :: Show BrowseMeal where
+  show = gShow
+
+
+instance arbitraryBrowseMeal :: Arbitrary BrowseMeal where
+  arbitrary = do
+    chef <- arbitrary
+    JSONDate deadline <- arbitrary
+    meal <- arbitrary
+    pure (BrowseMeal {chef,deadline,meal})
+
+instance encodeJsonBrowseMeal :: EncodeJson BrowseMeal where
+  encodeJson (BrowseMeal {chef,deadline,meal})
+    =  "chef" := chef
+    ~> "deadline" := JSONDate deadline
+    ~> "meal" := meal
+    ~> jsonEmptyObject
+
+instance decodeJsonBrowseMeal :: DecodeJson BrowseMeal where
+  decodeJson json = do
+    o <- decodeJson json
+    chef <- o .? "chef"
+    JSONDate deadline <- o .? "deadline"
+    meal <- o .? "meal"
+    pure (BrowseMeal {chef,deadline,meal})
+
+
+newtype AddToCart = AddToCart
+  { chef :: Permalink
+  , deadline :: Date
+  , meal :: Permalink
+  , volume :: Int
+  }
+
+derive instance genericAddToCart :: Generic AddToCart
+
+instance eqAddToCart :: Eq AddToCart where
+  eq = gEq
+
+instance showAddToCart :: Show AddToCart where
+  show = gShow
+
+instance arbitraryAddToCart :: Arbitrary AddToCart where
+  arbitrary = do
+    chef <- arbitrary
+    JSONDate deadline <- arbitrary
+    meal <- arbitrary
+    volume <- arbitrary
+    pure (AddToCart {chef,deadline,meal,volume})
+
+instance encodeJsonAddToCart :: EncodeJson AddToCart where
+  encodeJson (AddToCart {chef,deadline,meal,volume})
+    =  "chef" := chef
+    ~> "deadline" := JSONDate deadline
+    ~> "meal" := meal
+    ~> "volume" := volume
+    ~> jsonEmptyObject
+
+instance decodeJsonAddToCart :: DecodeJson AddToCart where
+  decodeJson json = do
+    o <- decodeJson json
+    chef <- o .? "chef"
+    JSONDate deadline <- o .? "deadline"
+    meal <- o .? "meal"
+    volume <- o .? "volume"
+    pure (AddToCart {chef,deadline,meal,volume})
+
+
+
+
 -- * Errors
 
 

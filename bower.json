@@ -21,6 +21,7 @@
     "purescript-js-date": "^4.0.0",
     "purescript-uri-extra": "git@git.localcooking.com:private-tooling/purescript-uri-extra.git#2d33a08e8954e2859365f5c9183e8f4c7f52ff57",
     "purescript-email-validate": "git@git.localcooking.com:private-tooling/purescript-email-validate.git#0d31c1378916bedae77bdfff4e04f2e48e157495",
+    "purescript-haskell-iso": "git@git.localcooking.com:tooling/purescript-haskell-iso.git#5e24404c6bab9633a373f6e2bbea16b750f1917f",
     "purescript-string-parsers": "^3.1.0",
     "purescript-dom": "^4.16.0",
     "purescript-queue": "^6.0.0",
@@ -33,6 +34,8 @@
     "purescript-zeromq": "^0.0.0"
   },
   "resolutions": {
-    "purescript-arraybuffer-types": "2.x"
+    "purescript-arraybuffer-types": "2.x",
+    "purescript-uri": "0647b672c505514581399e5c47aa7ef2b7b73404",
+    "purescript-pathy": "b5c54ce00455a4fc12b3614d9e99dfeca9d3effc"
   }
 }

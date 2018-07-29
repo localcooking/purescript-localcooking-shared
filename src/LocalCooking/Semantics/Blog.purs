@@ -11,8 +11,13 @@ import Data.String.Permalink (Permalink)
 import Data.DateTime (DateTime)
 import Data.DateTime.JSON (JSONDateTime (..))
 import Data.Generic (class Generic, gEq, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?))
+import Data.NonEmpty (NonEmpty (..))
+import Data.Argonaut
+  ( class EncodeJson, class DecodeJson, encodeJson, decodeJson
+  , fail, (:=), (~>), jsonEmptyObject, (.?))
+import Control.Alternative ((<|>))
 import Test.QuickCheck (class Arbitrary, arbitrary)
+import Test.QuickCheck.Gen (oneOf)
 
 
 
@@ -388,3 +393,208 @@ instance decodeJsonSetBlogPost :: DecodeJson SetBlogPost where
     primary <- o .? "primary"
     id <- o .? "id"
     pure (SetBlogPost {headline,permalink,content,priority,primary,id})
+
+
+-- * Errors
+
+
+
+data BlogPostCategoryExists a
+  = BlogPostCategoryDoesntExist
+  | BlogPostCategoryExists a
+
+derive instance genericBlogPostCategoryExists :: Generic a => Generic (BlogPostCategoryExists a)
+
+instance arbitraryBlogPostCategoryExists :: Arbitrary a => Arbitrary (BlogPostCategoryExists a) where
+  arbitrary = oneOf $ NonEmpty
+    ( pure BlogPostCategoryDoesntExist
+    )
+    [ BlogPostCategoryExists <$> arbitrary
+    ]
+
+instance eqBlogPostCategoryExists :: Generic a => Eq (BlogPostCategoryExists a) where
+  eq = gEq
+
+instance showBlogPostCategoryExists :: Generic a => Show (BlogPostCategoryExists a) where
+  show = gShow
+
+instance encodeJsonBlogPostCategoryExists :: EncodeJson a => EncodeJson (BlogPostCategoryExists a) where
+  encodeJson x = case x of
+    BlogPostCategoryDoesntExist -> encodeJson "blogPostCategoryDoesntExist"
+    BlogPostCategoryExists y
+      -> "blogPostCategoryExists"
+      := y
+      ~> jsonEmptyObject
+
+instance decodeJsonBlogPostCategoryExists :: DecodeJson a => DecodeJson (BlogPostCategoryExists a) where
+  decodeJson json = do
+    let empty = do
+          s <- decodeJson json
+          if s == "blogPostCategoryDoesntExist"
+             then pure BlogPostCategoryDoesntExist
+             else fail "Not a BlogPostCategoryExists"
+        has = do
+          o <- decodeJson json
+          BlogPostCategoryExists <$> o .? "blogPostCategoryExists"
+    empty <|> has
+
+
+data BlogPostCategoryUnique a
+  = BlogPostCategoryNotUnique
+  | BlogPostCategoryUnique a
+
+derive instance genericBlogPostCategoryUnique :: Generic a => Generic (BlogPostCategoryUnique a)
+
+instance arbitraryBlogPostCategoryUnique :: Arbitrary a => Arbitrary (BlogPostCategoryUnique a) where
+  arbitrary = oneOf $ NonEmpty
+    ( pure BlogPostCategoryNotUnique
+    )
+    [ BlogPostCategoryUnique <$> arbitrary
+    ]
+
+instance eqBlogPostCategoryUnique :: Generic a => Eq (BlogPostCategoryUnique a) where
+  eq = gEq
+
+instance showBlogPostCategoryUnique :: Generic a => Show (BlogPostCategoryUnique a) where
+  show = gShow
+
+instance encodeJsonBlogPostCategoryUnique :: EncodeJson a => EncodeJson (BlogPostCategoryUnique a) where
+  encodeJson x = case x of
+    BlogPostCategoryNotUnique -> encodeJson "blogPostCategoryNotUnique"
+    BlogPostCategoryUnique y
+      -> "blogPostCategoryUnique"
+      := y
+      ~> jsonEmptyObject
+
+instance decodeJsonBlogPostCategoryUnique :: DecodeJson a => DecodeJson (BlogPostCategoryUnique a) where
+  decodeJson json = do
+    let empty = do
+          s <- decodeJson json
+          if s == "blogPostCategoryNotUnique"
+             then pure BlogPostCategoryNotUnique
+             else fail "Not a BlogPostCategoryUnique"
+        has = do
+          o <- decodeJson json
+          BlogPostCategoryUnique <$> o .? "blogPostCategoryUnique"
+    empty <|> has
+
+
+
+data BlogPostExists a
+  = BlogPostDoesntExist
+  | BlogPostExists a
+
+derive instance genericBlogPostExists :: Generic a => Generic (BlogPostExists a)
+
+instance arbitraryBlogPostExists :: Arbitrary a => Arbitrary (BlogPostExists a) where
+  arbitrary = oneOf $ NonEmpty
+    ( pure BlogPostDoesntExist
+    )
+    [ BlogPostExists <$> arbitrary
+    ]
+
+instance eqBlogPostExists :: Generic a => Eq (BlogPostExists a) where
+  eq = gEq
+
+instance showBlogPostExists :: Generic a => Show (BlogPostExists a) where
+  show = gShow
+
+instance encodeJsonBlogPostExists :: EncodeJson a => EncodeJson (BlogPostExists a) where
+  encodeJson x = case x of
+    BlogPostDoesntExist -> encodeJson "blogPostDoesntExist"
+    BlogPostExists y
+      -> "blogPostExists"
+      := y
+      ~> jsonEmptyObject
+
+instance decodeJsonBlogPostExists :: DecodeJson a => DecodeJson (BlogPostExists a) where
+  decodeJson json = do
+    let empty = do
+          s <- decodeJson json
+          if s == "blogPostDoesntExist"
+             then pure BlogPostDoesntExist
+             else fail "Not a BlogPostExists"
+        has = do
+          o <- decodeJson json
+          BlogPostExists <$> o .? "blogPostExists"
+    empty <|> has
+
+
+data BlogPostUnique a
+  = BlogPostNotUnique
+  | BlogPostUnique a
+
+derive instance genericBlogPostUnique :: Generic a => Generic (BlogPostUnique a)
+
+instance arbitraryBlogPostUnique :: Arbitrary a => Arbitrary (BlogPostUnique a) where
+  arbitrary = oneOf $ NonEmpty
+    ( pure BlogPostNotUnique
+    )
+    [ BlogPostUnique <$> arbitrary
+    ]
+
+instance eqBlogPostUnique :: Generic a => Eq (BlogPostUnique a) where
+  eq = gEq
+
+instance showBlogPostUnique :: Generic a => Show (BlogPostUnique a) where
+  show = gShow
+
+instance encodeJsonBlogPostUnique :: EncodeJson a => EncodeJson (BlogPostUnique a) where
+  encodeJson x = case x of
+    BlogPostNotUnique -> encodeJson "blogPostNotUnique"
+    BlogPostUnique y
+      -> "blogPostUnique"
+      := y
+      ~> jsonEmptyObject
+
+instance decodeJsonBlogPostUnique :: DecodeJson a => DecodeJson (BlogPostUnique a) where
+  decodeJson json = do
+    let empty = do
+          s <- decodeJson json
+          if s == "blogPostNotUnique"
+             then pure BlogPostNotUnique
+             else fail "Not a BlogPostUnique"
+        has = do
+          o <- decodeJson json
+          BlogPostUnique <$> o .? "blogPostUnique"
+    empty <|> has
+
+
+data BlogPostPrimary a
+  = BlogPostNotPrimary
+  | BlogPostPrimary a
+
+derive instance genericBlogPostPrimary :: Generic a => Generic (BlogPostPrimary a)
+
+instance arbitraryBlogPostPrimary :: Arbitrary a => Arbitrary (BlogPostPrimary a) where
+  arbitrary = oneOf $ NonEmpty
+    ( pure BlogPostNotPrimary
+    )
+    [ BlogPostPrimary <$> arbitrary
+    ]
+
+instance eqBlogPostPrimary :: Generic a => Eq (BlogPostPrimary a) where
+  eq = gEq
+
+instance showBlogPostPrimary :: Generic a => Show (BlogPostPrimary a) where
+  show = gShow
+
+instance encodeJsonBlogPostPrimary :: EncodeJson a => EncodeJson (BlogPostPrimary a) where
+  encodeJson x = case x of
+    BlogPostNotPrimary -> encodeJson "blogPostNotPrimary"
+    BlogPostPrimary y
+      -> "blogPostPrimary"
+      := y
+      ~> jsonEmptyObject
+
+instance decodeJsonBlogPostPrimary :: DecodeJson a => DecodeJson (BlogPostPrimary a) where
+  decodeJson json = do
+    let empty = do
+          s <- decodeJson json
+          if s == "blogPostNotPrimary"
+             then pure BlogPostNotPrimary
+             else fail "Not a BlogPostPrimary"
+        has = do
+          o <- decodeJson json
+          BlogPostPrimary <$> o .? "blogPostPrimary"
+    empty <|> has

@@ -18,8 +18,13 @@ import Data.DateTime (DateTime)
 import Data.DateTime.JSON (JSONDateTime (..))
 import Data.Maybe (Maybe)
 import Data.Generic (class Generic, gEq, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?))
+import Data.NonEmpty (NonEmpty (..))
+import Data.Argonaut
+  ( class EncodeJson, class DecodeJson, encodeJson, decodeJson
+  , fail, (:=), (~>), jsonEmptyObject, (.?))
+import Control.Alternative ((<|>))
 import Test.QuickCheck (class Arbitrary, arbitrary)
+import Test.QuickCheck.Gen (oneOf)
 
 
 newtype SetChef = SetChef
@@ -272,3 +277,87 @@ instance decodeJsonOrder :: DecodeJson Order where
     id <- o .? "id"
     JSONDateTime time <- o .? "time"
     pure (Order {meal,progress,volume,id,time})
+
+
+-- * Errors
+
+
+
+data ChefExists a
+  = ChefDoesntExist
+  | ChefExists a
+
+derive instance genericChefExists :: Generic a => Generic (ChefExists a)
+
+instance arbitraryChefExists :: Arbitrary a => Arbitrary (ChefExists a) where
+  arbitrary = oneOf $ NonEmpty
+    ( pure ChefDoesntExist
+    )
+    [ ChefExists <$> arbitrary
+    ]
+
+instance eqChefExists :: Generic a => Eq (ChefExists a) where
+  eq = gEq
+
+instance showChefExists :: Generic a => Show (ChefExists a) where
+  show = gShow
+
+instance encodeJsonChefExists :: EncodeJson a => EncodeJson (ChefExists a) where
+  encodeJson x = case x of
+    ChefDoesntExist -> encodeJson "chefDoesntExist"
+    ChefExists y
+      -> "chefExists"
+      := y
+      ~> jsonEmptyObject
+
+instance decodeJsonChefExists :: DecodeJson a => DecodeJson (ChefExists a) where
+  decodeJson json = do
+    let empty = do
+          s <- decodeJson json
+          if s == "chefDoesntExist"
+             then pure ChefDoesntExist
+             else fail "Not a ChefExists"
+        has = do
+          o <- decodeJson json
+          ChefExists <$> o .? "chefExists"
+    empty <|> has
+
+
+data ChefUnique a
+  = ChefNotUnique
+  | ChefUnique a
+
+derive instance genericChefUnique :: Generic a => Generic (ChefUnique a)
+
+instance arbitraryChefUnique :: Arbitrary a => Arbitrary (ChefUnique a) where
+  arbitrary = oneOf $ NonEmpty
+    ( pure ChefNotUnique
+    )
+    [ ChefUnique <$> arbitrary
+    ]
+
+instance eqChefUnique :: Generic a => Eq (ChefUnique a) where
+  eq = gEq
+
+instance showChefUnique :: Generic a => Show (ChefUnique a) where
+  show = gShow
+
+instance encodeJsonChefUnique :: EncodeJson a => EncodeJson (ChefUnique a) where
+  encodeJson x = case x of
+    ChefNotUnique -> encodeJson "chefNotUnique"
+    ChefUnique y
+      -> "chefUnique"
+      := y
+      ~> jsonEmptyObject
+
+instance decodeJsonChefUnique :: DecodeJson a => DecodeJson (ChefUnique a) where
+  decodeJson json = do
+    let empty = do
+          s <- decodeJson json
+          if s == "chefNotUnique"
+             then pure ChefNotUnique
+             else fail "Not a ChefUnique"
+        has = do
+          o <- decodeJson json
+          ChefUnique <$> o .? "chefUnique"
+    empty <|> has

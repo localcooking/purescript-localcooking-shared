@@ -9,7 +9,9 @@ import Prelude
 import Data.Maybe (Maybe)
 import Data.NonEmpty (NonEmpty (..))
 import Data.Generic (class Generic, gEq, gShow)
-import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?))
+import Data.Argonaut
+  ( class EncodeJson, class DecodeJson, encodeJson, decodeJson
+  , fail, (:=), (~>), jsonEmptyObject, (.?))
 import Control.Alternative ((<|>))
 import Text.Email.Validate (EmailAddress)
 import Test.QuickCheck (class Arbitrary, arbitrary)
@@ -142,3 +144,47 @@ instance decodeJsonGetSetSubmissionPolicy :: DecodeJson GetSetSubmissionPolicy w
     additional <- o .? "additional"
     assigned <- o .? "assigned"
     pure (GetSetSubmissionPolicy {variant,additional,assigned})
+
+
+-- * Errors
+
+
+
+data SubmissionPolicyUnique a
+  = SubmissionPolicyNotUnique
+  | SubmissionPolicyUnique a
+
+derive instance genericSubmissionPolicyUnique :: Generic a => Generic (SubmissionPolicyUnique a)
+
+instance arbitrarySubmissionPolicyUnique :: Arbitrary a => Arbitrary (SubmissionPolicyUnique a) where
+  arbitrary = oneOf $ NonEmpty
+    ( pure SubmissionPolicyNotUnique
+    )
+    [ SubmissionPolicyUnique <$> arbitrary
+    ]
+
+instance eqSubmissionPolicyUnique :: Generic a => Eq (SubmissionPolicyUnique a) where
+  eq = gEq
+
+instance showSubmissionPolicyUnique :: Generic a => Show (SubmissionPolicyUnique a) where
+  show = gShow
+
+instance encodeJsonSubmissionPolicyUnique :: EncodeJson a => EncodeJson (SubmissionPolicyUnique a) where
+  encodeJson x = case x of
+    SubmissionPolicyNotUnique -> encodeJson "submissionPolicyNotUnique"
+    SubmissionPolicyUnique y
+      -> "submissionPolicyUnique"
+      := y
+      ~> jsonEmptyObject
+
+instance decodeJsonSubmissionPolicyUnique :: DecodeJson a => DecodeJson (SubmissionPolicyUnique a) where
+  decodeJson json = do
+    let empty = do
+          s <- decodeJson json
+          if s == "submissionPolicyNotUnique"
+             then pure SubmissionPolicyNotUnique
+             else fail "Not a SubmissionPolicyUnique"
+        has = do
+          o <- decodeJson json
+          SubmissionPolicyUnique <$> o .? "submissionPolicyUnique"
+    empty <|> has

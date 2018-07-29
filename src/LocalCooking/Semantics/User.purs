@@ -1,7 +1,6 @@
 module LocalCooking.Semantics.User where
 
 import Prelude
-import Data.Maybe (Maybe)
 import Data.NonEmpty (NonEmpty (..))
 import Data.Generic (class Generic, gEq, gShow)
 import Data.Argonaut

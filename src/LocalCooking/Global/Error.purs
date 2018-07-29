@@ -1,6 +1,7 @@
 module LocalCooking.Global.Error where
 
 import LocalCooking.Semantics.Common (RegisterError (..), ConfirmEmailError (..))
+import LocalCooking.Semantics.User (UserExists (..), UserUnique (..), HasRole (..))
 import Facebook.Types (FacebookLoginReturnError (..), FacebookUserId)
 
 import Prelude
@@ -9,8 +10,12 @@ import Data.NonEmpty (NonEmpty (..))
 import Data.Generic (class Generic, gShow, gEq)
 import Data.Argonaut (class DecodeJson, class EncodeJson, (.?), decodeJson, fail, encodeJson, (:=), (~>), jsonEmptyObject)
 import Control.Alternative ((<|>))
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Ref (REF)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 import Test.QuickCheck.Gen as QC
+import Queue.Types (WRITE)
+import Queue.One as One
 
 
 
@@ -53,7 +58,6 @@ derive instance genericSecurityMessage :: Generic SecurityMessage
 
 instance showSecurityMessage :: Show SecurityMessage where
   show = gShow
-
 
 
 data AuthTokenFailure
@@ -141,6 +145,18 @@ instance decodeJsonAuthTokenFailure :: DecodeJson AuthTokenFailure where
 
 
 
+-- | From JSON-compatible error types
+data ErrorCode
+  = UserUserDoesntExist
+  | UserDoesntHaveRole
+  | UserUserNotUnique
+
+derive instance genericErrorCode :: Generic ErrorCode
+
+instance showErrorCode :: Show ErrorCode where
+  show = gShow
+
+
 data GlobalError
   = GlobalErrorAuthFailure AuthTokenFailure
   | GlobalErrorUserEmail UserEmailError
@@ -148,6 +164,7 @@ data GlobalError
   | GlobalErrorRedirect RedirectError
   | GlobalErrorSecurity SecurityMessage
   | GlobalErrorConfirmEmail ConfirmEmailError
+  | GlobalErrorCode ErrorCode
   -- | GlobalErrorCustomer CustomerError
 
 derive instance genericGlobalError :: Generic GlobalError
@@ -159,6 +176,10 @@ instance showGlobalError :: Show GlobalError where
 
 printGlobalError :: GlobalError -> String
 printGlobalError x = case x of
+  GlobalErrorCode errCode -> case errCode of
+    UserUserDoesntExist -> "Error: User doesn't exist"
+    UserDoesntHaveRole -> "Error: User doesn't have role"
+    UserUserNotUnique -> "Error: User not unique"
   GlobalErrorAuthFailure authFailure -> case authFailure of
     FBLoginReturnBad a b -> "Facebook login failed: " <> a <> ", " <> b
     FBLoginReturnDenied a -> "Facebook login denied: " <> a
@@ -193,3 +214,36 @@ printGlobalError x = case x of
   -- GlobalErrorCustomer cust -> case cust of
   --   CustomerSaveFailed -> "Internal error - couldn't save customer details"
   --   CustomerSaveSuccess -> "Customer details saved"
+
+
+-- * Error code processing
+
+getUserExists :: forall eff a
+               . One.Queue (write :: WRITE) (ref :: REF | eff) GlobalError
+              -> UserExists a
+              -> (a -> Eff (ref :: REF | eff) Unit)
+              -> Eff (ref :: REF | eff) Unit
+getUserExists globalErrorQueue x f = case x of
+  UserDoesntExist ->
+    One.putQueue globalErrorQueue (GlobalErrorCode UserUserDoesntExist)
+  UserExists y -> f y
+
+getUserUnique :: forall eff a
+               . One.Queue (write :: WRITE) (ref :: REF | eff) GlobalError
+              -> UserUnique a
+              -> (a -> Eff (ref :: REF | eff) Unit)
+              -> Eff (ref :: REF | eff) Unit
+getUserUnique globalErrorQueue x f = case x of
+  UserNotUnique ->
+    One.putQueue globalErrorQueue (GlobalErrorCode UserUserNotUnique)
+  UserUnique y -> f y
+
+getHasRole :: forall eff a
+               . One.Queue (write :: WRITE) (ref :: REF | eff) GlobalError
+              -> HasRole a
+              -> (a -> Eff (ref :: REF | eff) Unit)
+              -> Eff (ref :: REF | eff) Unit
+getHasRole globalErrorQueue x f = case x of
+  DoesntHaveRole ->
+    One.putQueue globalErrorQueue (GlobalErrorCode UserDoesntHaveRole)
+  HasRole y -> f y

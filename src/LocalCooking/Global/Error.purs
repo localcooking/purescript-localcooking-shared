@@ -80,6 +80,7 @@ data AuthTokenFailure
   | FBLoginReturnError FacebookLoginReturnError
   | AuthLoginFailure
   | AuthTokenExpired
+  | AuthTokenInternalError
 
 derive instance genericAuthTokenFailure :: Generic AuthTokenFailure
 
@@ -88,6 +89,7 @@ instance arbitraryAuthTokenFailure :: Arbitrary AuthTokenFailure where
     ( pure AuthLoginFailure
     )
     [ pure AuthTokenExpired
+    , pure AuthTokenInternalError
     , FBLoginReturnBad <$> arbitrary <*> arbitrary
     , FBLoginReturnDenied <$> arbitrary
     , pure FBLoginReturnBadParse
@@ -105,6 +107,7 @@ instance encodeJsonAuthTokenFailure :: EncodeJson AuthTokenFailure where
   encodeJson x = case x of
     AuthLoginFailure -> encodeJson "loginFailure"
     AuthTokenExpired -> encodeJson "tokenExpired"
+    AuthTokenInternalError -> encodeJson "internalError"
     FBLoginReturnBadParse -> encodeJson "bad-parse"
     FBLoginReturnBad code msg
       -> "fbBad" :=
@@ -152,6 +155,7 @@ instance decodeJsonAuthTokenFailure :: DecodeJson AuthTokenFailure where
             _ | s == "bad-parse" -> pure FBLoginReturnBadParse
               | s == "loginFailure" -> pure AuthLoginFailure
               | s == "tokenExpired" -> pure AuthTokenExpired
+              | s == "internalError" -> pure AuthTokenInternalError
               | otherwise -> fail "Not a AuthTokenFailure"
     obj <|> str
 
@@ -247,6 +251,7 @@ printGlobalError x = case x of
       FacebookLoginGetTokenError' a b c d -> "Facebook get token error: " <> a <> ", " <> b <> ", " <> show c <> ", " <> d
     AuthLoginFailure -> "Password incorrect, please try again."
     AuthTokenExpired -> "Session expired, please login."
+    AuthTokenInternalError -> "Internal Error: Auth token returned null"
   GlobalErrorUserEmail userEmail -> case userEmail of
     UserEmailNoInitOut -> "Internal Error: userEmail resource failed"
     UserEmailNoAuth -> "Error: No authorization for email"

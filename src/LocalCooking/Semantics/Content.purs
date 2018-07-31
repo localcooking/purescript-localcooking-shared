@@ -2,9 +2,9 @@ module LocalCooking.Semantics.Content where
 
 import LocalCooking.Semantics.ContentRecord.Variant (ContentRecordVariant)
 import LocalCooking.Database.Schema (StoredEditorId)
-import LocalCooking.Common.User.Name (Name)
 
 import Prelude
+import Data.Name (Name)
 import Data.Maybe (Maybe)
 import Data.Generic (class Generic, gEq, gShow)
 import Data.NonEmpty (NonEmpty (..))

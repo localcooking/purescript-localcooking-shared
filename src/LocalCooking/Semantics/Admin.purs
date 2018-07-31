@@ -3,9 +3,9 @@ module LocalCooking.Semantics.Admin where
 import LocalCooking.Semantics.Common (User)
 import LocalCooking.Semantics.ContentRecord.Variant (ContentRecordVariant)
 import LocalCooking.Database.Schema (StoredEditorId)
-import LocalCooking.Common.User.Password (HashedPassword)
 
 import Prelude
+import Data.Password (HashedPassword)
 import Data.Maybe (Maybe)
 import Data.NonEmpty (NonEmpty (..))
 import Data.Generic (class Generic, gEq, gShow)

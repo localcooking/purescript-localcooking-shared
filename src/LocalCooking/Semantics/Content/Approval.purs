@@ -3,13 +3,13 @@ module LocalCooking.Semantics.Content.Approval where
 import LocalCooking.Semantics.ContentRecord (ContentRecord)
 import LocalCooking.Semantics.ContentRecord.Variant (ContentRecordVariant)
 import LocalCooking.Database.Schema (RecordSubmissionApprovalId, StoredUserId, StoredEditorId)
-import LocalCooking.Common.User.Name (Name)
 
 import Prelude
+import Data.Name (Name)
 import Data.Generic (class Generic, gEq, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?))
+import Data.Argonaut.JSONDateTime (JSONDateTime (..))
 import Data.DateTime (DateTime)
-import Data.DateTime.JSON (JSONDateTime (..))
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
 

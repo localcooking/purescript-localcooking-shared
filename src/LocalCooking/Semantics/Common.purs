@@ -2,17 +2,17 @@ module LocalCooking.Semantics.Common where
 
 import LocalCooking.Database.Schema (StoredUserId)
 import LocalCooking.Common.User.Role (UserRole)
-import LocalCooking.Common.User.Password (HashedPassword)
 import Facebook.Types (FacebookUserId, FacebookLoginCode)
 import Google.ReCaptcha (ReCaptchaResponse)
 
 import Prelude
+import Data.Password (HashedPassword)
 import Data.DateTime (DateTime)
-import Data.DateTime.JSON (JSONDateTime (..))
 import Data.Maybe (Maybe)
 import Data.NonEmpty (NonEmpty (..))
 import Data.Generic (class Generic, gEq, gShow)
 import Data.Argonaut (class EncodeJson, class DecodeJson, encodeJson, decodeJson, (:=), (~>), jsonEmptyObject, (.?), fail)
+import Data.Argonaut.JSONDateTime (JSONDateTime (..))
 import Control.Alternative ((<|>))
 import Text.Email.Validate (EmailAddress)
 import Test.QuickCheck (class Arbitrary, arbitrary)

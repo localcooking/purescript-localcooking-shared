@@ -1,16 +1,15 @@
 module LocalCooking.Semantics.Validate where
 
-import LocalCooking.Common.User.Password (HashedPassword)
-
 import Prelude
+import Data.Password (HashedPassword)
 import Data.Date (Date)
-import Data.Date.JSON (JSONDate (..))
 import Data.String.Permalink (Permalink)
 import Data.Generic (class Generic, gEq, gShow)
 import Text.Email.Validate (EmailAddress)
 import Data.Argonaut
   ( class EncodeJson, class DecodeJson, decodeJson
   , (:=), (~>), jsonEmptyObject, (.?))
+import Data.Argonaut.JSONDate (JSONDate (..))
 import Test.QuickCheck (class Arbitrary, arbitrary)
 
 

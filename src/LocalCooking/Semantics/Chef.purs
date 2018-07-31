@@ -1,27 +1,27 @@
 module LocalCooking.Semantics.Chef where
 
 import LocalCooking.Database.Schema (StoredMealId, StoredOrderId)
-import LocalCooking.Common.User.Name (Name)
 import LocalCooking.Common.Tag.Chef (ChefTag)
 import LocalCooking.Common.Tag.Meal (MealTag)
 import LocalCooking.Common.Tag.Ingredient (IngredientTag)
 import LocalCooking.Common.Order (OrderProgress)
 
 import Prelude
+import Data.Name (Name)
 import Data.Price (Price)
 import Data.String.Markdown (MarkdownText)
 import Data.String.Permalink (Permalink)
 import Data.Image.Source (ImageSource)
 import Data.Date (Date)
-import Data.Date.JSON (JSONDate (..), getJSONDate)
 import Data.DateTime (DateTime)
-import Data.DateTime.JSON (JSONDateTime (..))
 import Data.Maybe (Maybe)
 import Data.Generic (class Generic, gEq, gShow)
 import Data.NonEmpty (NonEmpty (..))
 import Data.Argonaut
   ( class EncodeJson, class DecodeJson, encodeJson, decodeJson
   , fail, (:=), (~>), jsonEmptyObject, (.?))
+import Data.Argonaut.JSONDate (JSONDate (..), getJSONDate)
+import Data.Argonaut.JSONDateTime (JSONDateTime (..))
 import Control.Alternative ((<|>))
 import Test.QuickCheck (class Arbitrary, arbitrary)
 import Test.QuickCheck.Gen (oneOf)

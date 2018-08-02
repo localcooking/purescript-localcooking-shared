@@ -15,6 +15,7 @@ import LocalCooking.Semantics.Mitch
   , MenuPublished (..))
 import LocalCooking.Semantics.Tag (TagExists (..))
 import Facebook.Types (FacebookLoginReturnError (..), FacebookUserId)
+import Auth.AccessToken.Session (SessionTokenFailure (..))
 
 import Prelude
 import Data.Maybe (Maybe (..))
@@ -72,42 +73,36 @@ instance showSecurityMessage :: Show SecurityMessage where
   show = gShow
 
 
-data AuthTokenFailure
+
+data LoginError
   = FBLoginReturnBad String String
   | FBLoginReturnDenied String
   | FBLoginReturnBadParse
   | FBLoginReturnNoUser FacebookUserId
   | FBLoginReturnError FacebookLoginReturnError
-  | AuthLoginFailure
-  | AuthTokenExpired
-  | AuthTokenInternalError
+  | LoginBadPassword
 
-derive instance genericAuthTokenFailure :: Generic AuthTokenFailure
+derive instance genericLoginError :: Generic LoginError
 
-instance arbitraryAuthTokenFailure :: Arbitrary AuthTokenFailure where
+instance showLoginError :: Show LoginError where
+  show = gShow
+
+instance eqLoginError :: Eq LoginError where
+  eq = gEq
+
+instance arbitraryLoginError :: Arbitrary LoginError where
   arbitrary = QC.oneOf $ NonEmpty
-    ( pure AuthLoginFailure
+    ( FBLoginReturnBad <$> arbitrary <*> arbitrary
     )
-    [ pure AuthTokenExpired
-    , pure AuthTokenInternalError
-    , FBLoginReturnBad <$> arbitrary <*> arbitrary
-    , FBLoginReturnDenied <$> arbitrary
+    [ FBLoginReturnDenied <$> arbitrary
     , pure FBLoginReturnBadParse
+    , pure LoginBadPassword
     , FBLoginReturnNoUser <$> arbitrary
     , FBLoginReturnError <$> arbitrary
     ]
 
-instance showAuthTokenFailure :: Show AuthTokenFailure where
-  show = gShow
-
-instance eqAuthTokenFailure :: Eq AuthTokenFailure where
-  eq = gEq
-
-instance encodeJsonAuthTokenFailure :: EncodeJson AuthTokenFailure where
+instance encodeJsonLoginError :: EncodeJson LoginError where
   encodeJson x = case x of
-    AuthLoginFailure -> encodeJson "loginFailure"
-    AuthTokenExpired -> encodeJson "tokenExpired"
-    AuthTokenInternalError -> encodeJson "internalError"
     FBLoginReturnBadParse -> encodeJson "bad-parse"
     FBLoginReturnBad code msg
       -> "fbBad" :=
@@ -128,8 +123,9 @@ instance encodeJsonAuthTokenFailure :: EncodeJson AuthTokenFailure where
     FBLoginReturnError y
       -> "fbLoginReturnError" := y
       ~> jsonEmptyObject
+    LoginBadPassword -> encodeJson "badPassword"
 
-instance decodeJsonAuthTokenFailure :: DecodeJson AuthTokenFailure where
+instance decodeJsonLoginError :: DecodeJson LoginError where
   decodeJson json = do
     let obj = do
           o <- decodeJson json
@@ -153,11 +149,10 @@ instance decodeJsonAuthTokenFailure :: DecodeJson AuthTokenFailure where
           s <- decodeJson json
           case unit of
             _ | s == "bad-parse" -> pure FBLoginReturnBadParse
-              | s == "loginFailure" -> pure AuthLoginFailure
-              | s == "tokenExpired" -> pure AuthTokenExpired
-              | s == "internalError" -> pure AuthTokenInternalError
-              | otherwise -> fail "Not a AuthTokenFailure"
+              | s == "badPassword" -> pure LoginBadPassword
+              | otherwise -> fail "Not a LoginError"
     obj <|> str
+
 
 
 
@@ -196,7 +191,7 @@ instance showErrorCode :: Show ErrorCode where
 
 
 data GlobalError
-  = GlobalErrorAuthFailure AuthTokenFailure
+  = GlobalErrorSessionFailure (SessionTokenFailure LoginError)
   | GlobalErrorUserEmail UserEmailError
   | GlobalErrorRegister (Maybe RegisterError)
   | GlobalErrorRedirect RedirectError
@@ -240,18 +235,19 @@ printGlobalError x = case x of
     MitchMenuNotUnique -> "Error: Menu not unique"
     MitchMenuNotPublished -> "Error: Menu not published"
     TagTagDoesntExist -> "Error: Tag doesn't exist"
-  GlobalErrorAuthFailure authFailure -> case authFailure of
-    FBLoginReturnBad a b -> "Facebook login failed: " <> a <> ", " <> b
-    FBLoginReturnDenied a -> "Facebook login denied: " <> a
-    FBLoginReturnBadParse -> "Internal error - bad Facebook login"
-    FBLoginReturnNoUser _ -> "Facebook user not recognized"
-    FBLoginReturnError fb -> case fb of
-      FacebookLoginVerifyParseFailure a -> "Facebook parse failure: " <> a
-      FacebookLoginUserDetailsParseFailure a -> "Facebook parse failure: " <> a
-      FacebookLoginGetTokenError' a b c d -> "Facebook get token error: " <> a <> ", " <> b <> ", " <> show c <> ", " <> d
-    AuthLoginFailure -> "Password incorrect, please try again."
-    AuthTokenExpired -> "Session expired, please login."
-    AuthTokenInternalError -> "Internal Error: Auth token returned null"
+  GlobalErrorSessionFailure sessionFailure -> case sessionFailure of
+    SessionLoginFailure x -> case x of
+      FBLoginReturnBad a b -> "Facebook login failed: " <> a <> ", " <> b
+      FBLoginReturnDenied a -> "Facebook login denied: " <> a
+      FBLoginReturnBadParse -> "Internal error - bad Facebook login"
+      FBLoginReturnNoUser _ -> "Facebook user not recognized"
+      FBLoginReturnError fb -> case fb of
+        FacebookLoginVerifyParseFailure a -> "Facebook parse failure: " <> a
+        FacebookLoginUserDetailsParseFailure a -> "Facebook parse failure: " <> a
+        FacebookLoginGetTokenError' a b c d -> "Facebook get token error: " <> a <> ", " <> b <> ", " <> show c <> ", " <> d
+      LoginBadPassword -> "Password incorrect, please try again."
+    SessionTokenExpired -> "Session expired, please login."
+    SessionTokenInternalError -> "Internal Error: Auth token returned null"
   GlobalErrorUserEmail userEmail -> case userEmail of
     UserEmailNoInitOut -> "Internal Error: userEmail resource failed"
     UserEmailNoAuth -> "Error: No authorization for email"

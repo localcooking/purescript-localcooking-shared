@@ -1,8 +1,7 @@
 module LocalCooking.Global.Links.Class where
 
-
-import LocalCooking.Common.AccessToken.Auth (AuthToken)
 import LocalCooking.Global.Error (GlobalError (GlobalErrorRedirect), RedirectError (..))
+import Auth.AccessToken.Session (SessionToken)
 
 import Prelude
 import Data.URI.Location
@@ -150,7 +149,7 @@ withRedirectPolicy :: forall eff siteLinks userDetails userDetailsLinks siteErro
                    => Show userDetails
                    => { onError          :: Eff (WREffects eff) Unit
                       , extraRedirect    :: siteLinks -> Maybe userDetails -> Maybe {siteLink :: siteLinks, siteError :: siteError}
-                      , authToken        :: Maybe AuthToken
+                      , sessionToken        :: Maybe SessionToken
                       , userDetails      :: Maybe userDetails
                       , globalErrorQueue :: One.Queue (write :: WRITE) (WREffects eff) GlobalError
                       , siteErrorQueue   :: One.Queue (write :: WRITE) (WREffects eff) siteError
@@ -160,7 +159,7 @@ withRedirectPolicy :: forall eff siteLinks userDetails userDetailsLinks siteErro
 withRedirectPolicy
   { onError
   , extraRedirect
-  , authToken: mAuth
+  , sessionToken: mAuth
   , userDetails: mUserDetails
   , globalErrorQueue
   , siteErrorQueue
@@ -280,14 +279,14 @@ initSiteLinks = do
           warn $ "Location can't be a SiteLinks: " <> e <> ", " <> printLocation location
           pure rootLink'
         Right (x :: siteLinks) -> do
-          -- FIXME only adjust for authToken when it's parsable? Why?
+          -- FIXME only adjust for sessionToken when it's parsable? Why?
           case mQuery of
             Nothing -> do
               log $ "Sucessfully parsed initSiteLinks from location: " <> printLocation location <> ", " <> show x
               pure x
             Just (Query qs) -> do
               case
-                    StrMap.lookup "authToken" (StrMap.fromFoldable qs)
+                    StrMap.lookup "sessionToken" (StrMap.fromFoldable qs)
                 <|> StrMap.lookup "formData" (StrMap.fromFoldable qs)
                 <|> StrMap.lookup "emailToken" (StrMap.fromFoldable qs)
                 of

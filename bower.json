@@ -15,6 +15,7 @@
     "purescript-dom-extra": "git@git.localcooking.com:tooling/purescript-dom-extra.git#ca9aece1261b0570606039dadf08005ae8043b2f",
     "purescript-facebook": "git@git.localcooking.com:template/purescript-facebook.git#4f1a4367e13bb1d4542725f7fd12452cdb15629f",
     "purescript-google": "git@git.localcooking.com:template/purescript-google.git#69bd20ffae5093596598a4d927a352e9a8d4d81e",
+    "purescript-auth": "git@git.localcooking.com:template/purescript-auth.git#3a118c512ac8216442c7c9532478361514fce4f4",
     "purescript-dictionary": "git@git.localcooking.com:template/purescript-dictionary.git#4b0b5a18eb0384433b22e8d0166eac97fa224786"
   },
   "devDependencies": {
@@ -24,6 +25,7 @@
   "resolutions": {
     "purescript-arraybuffer-types": "2.x",
     "purescript-uri": "0647b672c505514581399e5c47aa7ef2b7b73404",
-    "purescript-pathy": "b5c54ce00455a4fc12b3614d9e99dfeca9d3effc"
+    "purescript-pathy": "b5c54ce00455a4fc12b3614d9e99dfeca9d3effc",
+    "purescript-uuid": "2e563284ee5c41d75bf9010de3c4cded9f0223db"
   }
 }

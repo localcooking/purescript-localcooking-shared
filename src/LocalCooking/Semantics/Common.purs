@@ -296,18 +296,26 @@ instance decodeJsonConfirmEmailError :: DecodeJson ConfirmEmailError where
         | otherwise -> fail "ConfirmEmailError"
 
 
-newtype Login = Login
-  { email     :: EmailAddress
-  , password  :: HashedPassword
-  }
+data Login
+  = EmailLogin
+    { email     :: EmailAddress
+    , password  :: HashedPassword
+    }
+  | SocialLoginFB
+    { fbCode :: FacebookLoginCode
+    }
 
 derive instance genericLogin :: Generic Login
 
 instance arbitraryLogin :: Arbitrary Login where
-  arbitrary = do
-    email <- arbitrary
-    password <- arbitrary
-    pure (Login {email,password})
+  arbitrary = oneOf $ NonEmpty
+    ( do  email <- arbitrary
+          password <- arbitrary
+          pure (EmailLogin {email,password})
+    )
+    [ do  fbCode <- arbitrary
+          pure (SocialLoginFB {fbCode})
+    ]
 
 instance eqLogin :: Eq Login where
   eq = gEq
@@ -316,50 +324,23 @@ instance showLogin :: Show Login where
   show = gShow
 
 instance encodeJsonLogin :: EncodeJson Login where
-  encodeJson (Login {email,password})
-    =  "email" := email
-    ~> "password" := password
-    ~> jsonEmptyObject
-
-instance decodeJsonLogin :: DecodeJson Login where
-  decodeJson json = do
-    o <- decodeJson json
-    email <- o .? "email"
-    password <- o .? "password"
-    pure (Login {email,password})
-
-
-
-
-data SocialLogin
-  = SocialLoginFB
-    { fbCode :: FacebookLoginCode
-    }
-
-derive instance genericSocialLogin :: Generic SocialLogin
-
-instance arbitrarySocialLogin :: Arbitrary SocialLogin where
-  arbitrary = do
-    fbCode <- arbitrary
-    pure (SocialLoginFB {fbCode})
-
-instance eqSocialLogin :: Eq SocialLogin where
-  eq = gEq
-
-instance showSocialLogin :: Show SocialLogin where
-  show = gShow
-
-instance encodeJsonSocialLogin :: EncodeJson SocialLogin where
   encodeJson x = case x of
+    EmailLogin {email,password}
+      -> "email" := email
+      ~> "password" := password
+      ~> jsonEmptyObject
     SocialLoginFB {fbCode}
       -> "fbCode" := fbCode
       ~> jsonEmptyObject
 
-instance decodeJsonSocialLogin :: DecodeJson SocialLogin where
+instance decodeJsonLogin :: DecodeJson Login where
   decodeJson json = do
     o <- decodeJson json
-    let socialFB = do
+    let emailLogin = do
+          email <- o .? "email"
+          password <- o .? "password"
+          pure (EmailLogin {email,password})
+        socialFB = do
           fbCode <- o .? "fbCode"
           pure (SocialLoginFB {fbCode})
-    socialFB
-
+    socialFB <|> emailLogin

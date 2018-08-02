@@ -73,7 +73,7 @@ instance showSecurityMessage :: Show SecurityMessage where
   show = gShow
 
 
-
+-- | Types of login errors for LocalCooking
 data LoginError
   = FBLoginReturnBad String String
   | FBLoginReturnDenied String

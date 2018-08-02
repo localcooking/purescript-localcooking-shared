@@ -14,7 +14,7 @@
     "purescript-dom-extra": "git@git.localcooking.com:tooling/purescript-dom-extra.git#ca9aece1261b0570606039dadf08005ae8043b2f",
     "purescript-facebook": "git@git.localcooking.com:template/purescript-facebook.git#4f1a4367e13bb1d4542725f7fd12452cdb15629f",
     "purescript-google": "git@git.localcooking.com:template/purescript-google.git#69bd20ffae5093596598a4d927a352e9a8d4d81e",
-    "purescript-auth": "git@git.localcooking.com:template/purescript-auth.git#621eed0fbb01ad4f94a8a45e2f4c2536f9766840",
+    "purescript-auth": "git@git.localcooking.com:template/purescript-auth.git#53fac57742b79170dbb1dd9531e02a5bde0b06d0",
     "purescript-dictionary": "git@git.localcooking.com:template/purescript-dictionary.git#4b0b5a18eb0384433b22e8d0166eac97fa224786"
   },
   "devDependencies": {

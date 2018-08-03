@@ -149,7 +149,7 @@ withRedirectPolicy :: forall eff siteLinks userDetails userDetailsLinks siteErro
                    => Show userDetails
                    => { onError          :: Eff (WREffects eff) Unit
                       , extraRedirect    :: siteLinks -> Maybe userDetails -> Maybe {siteLink :: siteLinks, siteError :: siteError}
-                      , sessionToken        :: Maybe SessionToken
+                      , sessionToken     :: Maybe SessionToken
                       , userDetails      :: Maybe userDetails
                       , globalErrorQueue :: One.Queue (write :: WRITE) (WREffects eff) GlobalError
                       , siteErrorQueue   :: One.Queue (write :: WRITE) (WREffects eff) siteError
